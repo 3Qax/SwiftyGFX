@@ -1,5 +1,9 @@
 import CFreeType
+#if os(macOS) || os(iOS)
 import Darwin
+#elseif os(Linux) || CYGWIN
+import Glibc
+#endif
 
 
 public struct Point: Equatable, CustomStringConvertible {
