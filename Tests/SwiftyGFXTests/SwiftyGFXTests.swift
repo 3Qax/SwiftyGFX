@@ -66,6 +66,11 @@ final class SwiftyGFXTests: XCTestCase {
                         Point(x: -4, y: 0), Point(x: -5, y: 0)])
     }
     
+    func testTextDrawing() {
+        let myDrawing = Text("123", at: Point(x: 0, y: 0))
+        myDrawing.generatePointsForDrawing()
+    }
+    
     static var allTests = [
         ("testLineDrawing", testObliqueLineDrawing),
     ]

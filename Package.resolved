@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CFreeType",
+        "repositoryURL": "https://github.com/3Qax/CFreeType.git",
+        "state": {
+          "branch": null,
+          "revision": "c5a71a153604bdd6901acbee87c583ab128af2b6",
+          "version": "2.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

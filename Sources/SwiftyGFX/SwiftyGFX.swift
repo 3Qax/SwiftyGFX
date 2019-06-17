@@ -1,14 +1,21 @@
 import CFreeType
+import Darwin
 
 
-
-public struct Point: Equatable {
+public struct Point: Equatable, CustomStringConvertible {
+    
     var x: Int
     var y: Int
     
     public static func ==(lhs: Point, rhs: Point) -> Bool {
         return lhs.x == rhs.x && lhs.y == rhs.y
     }
+    
+    
+    public var description: String {
+        return "\(x)\t\(y)"
+    }
+    
 }
 
 public protocol Drawable {
@@ -295,4 +302,80 @@ public class Triangle: Drawable {
         return result
     }
 
+}
+
+public class Text: Drawable {
+    public var origin: Point
+    public var text: String
+    private var library: FT_Library?
+    private var face: FT_Face?
+    
+    init(_ text: String, at origin: Point) {
+        self.origin = origin
+        self.text = text
+        
+        guard FT_Init_FreeType(&library) == FT_Err_Ok else {
+            fatalError("Error occured during initialization of the freetype library")
+        }
+        
+        guard FT_New_Face(library, "/Library/Fonts/Arial.ttf", 0, &face) == FT_Err_Ok else {
+            fatalError("Check path or file format of font")
+        }
+        
+//        guard FT_Set_Char_Size(&face!.pointee, 0, 4*64, 150, 150) == FT_Err_Ok else {
+//            fatalError("Can not set char size for a given face!")
+//        }
+        
+        guard FT_Set_Pixel_Sizes(&face!.pointee, 16, 16) == FT_Err_Ok else {
+            fatalError("Can not set char size for a given face!")
+        }
+        
+    }
+    
+    public func generatePointsForDrawing() -> [Point] {
+        
+        var result = [Point]()
+        
+        
+        var lastOffset = 0
+        for character in text {
+            for scalar in character.unicodeScalars {
+                
+                let glyphIndex = FT_Get_Char_Index(face, FT_ULong(scalar.value))
+                
+                guard FT_Load_Glyph(face, glyphIndex, FT_Int32(FT_LOAD_MONOCHROME)) == FT_Err_Ok else {
+                    fatalError()
+                }
+                
+                guard FT_Render_Glyph(face?.pointee.glyph, FT_RENDER_MODE_MONO) == FT_Err_Ok else {
+                    fatalError()
+                }
+                
+                let bitmap = face!.pointee.glyph.pointee.bitmap
+                
+                for y in 0..<bitmap.rows {
+                    for x in 0..<bitmap.pitch {
+                        let byte = bitmap.buffer![Int(y*UInt32(bitmap.pitch)+UInt32(x))]
+                        var power: UInt8 = 0
+                        while power < 8 {
+                            let mask: UInt8 = UInt8(pow(2.0,Double(power)))
+                            if byte & mask > 0 {
+//                                print("Adding point for:\nbyte:\t\(String(byte, radix: 2))\nmask:\t\(String(mask, radix: 2))")
+                                result.append(Point(x: Int(x)*8+Int(7-power) + lastOffset, y: Int(y)))
+                            }
+                            power += 1
+                        }
+                    }
+                }
+                lastOffset += Int(bitmap.width)
+            }
+        }
+        
+        
+        
+        result.forEach({ print(String(describing: $0)) })
+        return result
+    }
+    
+    
 }
