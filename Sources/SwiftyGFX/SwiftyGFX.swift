@@ -345,7 +345,8 @@ public class Text: Drawable {
         var result = [Point]()
         
         
-        var lastOffset = 0
+        var previousGlyphIndex: UInt32 = 0
+        var summaryLeftOffset: UInt32 = 0
         for character in text {
             for scalar in character.unicodeScalars {
                 
@@ -361,6 +362,11 @@ public class Text: Drawable {
                 
                 let bitmap = face!.pointee.glyph.pointee.bitmap
                 
+                //determin kerning offset
+                var kerningDistanceVector = FT_Vector(x: 0, y: 0)
+                FT_Get_Kerning(face, previousGlyphIndex, glyphIndex, FT_KERNING_DEFAULT.rawValue, &kerningDistanceVector)
+//                print("Kerning: \(kerningDistanceVector.x)")
+                
                 for y in 0..<bitmap.rows {
                     for x in 0..<bitmap.pitch {
                         let byte = bitmap.buffer![Int(y*UInt32(bitmap.pitch)+UInt32(x))]
@@ -369,13 +375,15 @@ public class Text: Drawable {
                             let mask: UInt8 = UInt8(pow(2.0,Double(power)))
                             if byte & mask > 0 {
 //                                print("Adding point for:\nbyte:\t\(String(byte, radix: 2))\nmask:\t\(String(mask, radix: 2))")
-                                result.append(Point(x: Int(x)*8+Int(7-power) + lastOffset, y: Int(y)))
+                                let adjustedOffset = Int(summaryLeftOffset) + kerningDistanceVector.x
+                                result.append(Point(x: Int(x)*8+Int(7-power) +  adjustedOffset, y: Int(y)))
                             }
                             power += 1
                         }
                     }
                 }
-                lastOffset += Int(bitmap.width)
+                previousGlyphIndex = glyphIndex
+                summaryLeftOffset += UInt32(face!.pointee.glyph.pointee.metrics.horiAdvance) >> 6
             }
         }
         
