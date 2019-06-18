@@ -8,13 +8,17 @@ import Glibc
 
 public struct Point: Equatable, CustomStringConvertible {
     
-    var x: Int
-    var y: Int
+    public var x: Int
+    public var y: Int
     
     public static func ==(lhs: Point, rhs: Point) -> Bool {
         return lhs.x == rhs.x && lhs.y == rhs.y
     }
     
+    public init(x: Int, y: Int) {
+        self.x = x
+        self.y = y
+    }
     
     public var description: String {
         return "\(x)\t\(y)"
@@ -314,7 +318,7 @@ public class Text: Drawable {
     private var library: FT_Library?
     private var face: FT_Face?
     
-    init(_ text: String, at origin: Point) {
+    public init(_ text: String, at origin: Point) {
         self.origin = origin
         self.text = text
         
