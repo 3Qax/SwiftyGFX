@@ -67,7 +67,7 @@ final class SwiftyGFXTests: XCTestCase {
     }
     
     func testTextDrawing() {
-        let myDrawing = Text("123", at: Point(x: 0, y: 0))
+        let myDrawing = Text("example of text drawing! 123", at: Point(x: 0, y: 0))
         myDrawing.generatePointsForDrawing()
     }
     
