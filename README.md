@@ -1,3 +1,3 @@
 # SwiftyGFX
 
-A description of this package.
+A swift graphics library intended for my SwiftyOLED library.

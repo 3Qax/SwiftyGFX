@@ -11,13 +11,15 @@ public struct Point: Equatable, CustomStringConvertible {
     public var x: Int
     public var y: Int
     
-    public static func ==(lhs: Point, rhs: Point) -> Bool {
-        return lhs.x == rhs.x && lhs.y == rhs.y
-    }
+    
     
     public init(x: Int, y: Int) {
         self.x = x
         self.y = y
+    }
+    
+    public static func ==(lhs: Point, rhs: Point) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y
     }
     
     public var description: String {
@@ -249,7 +251,6 @@ public class Ellipse: Drawable {
             result.append(Point(x: x0 + xRadius, y: -y + yRadius))
             
         }
-        result.forEach({ print("\($0.x) \($0.y)")})
         return result
     }
     
@@ -318,26 +319,35 @@ public class Text: Drawable {
     private var library: FT_Library?
     private var face: FT_Face?
     
-    public init(_ text: String, at origin: Point) {
+    public init(_ text: String, font pathToFont: String, at origin: Point, pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16) {
         self.origin = origin
         self.text = text
         
         guard FT_Init_FreeType(&library) == FT_Err_Ok else {
-            fatalError("Error occured during initialization of the freetype library")
+            fatalError("Error during initialization! Error occured during initialization of the freetype library!")
         }
         
-        guard FT_New_Face(library, "/Library/Fonts/Arial.ttf", 0, &face) == FT_Err_Ok else {
-            fatalError("Check path or file format of font")
+        // "/Library/Fonts/Arial.ttf"
+        guard FT_New_Face(library, pathToFont, 0, &face) == FT_Err_Ok else {
+            fatalError("Error during initialization! Please make sure that given path is valid and used file format of font is supported!")
         }
         
-//        guard FT_Set_Char_Size(&face!.pointee, 0, 4*64, 150, 150) == FT_Err_Ok else {
-//            fatalError("Can not set char size for a given face!")
-//        }
-        
-        guard FT_Set_Pixel_Sizes(&face!.pointee, 16, 16) == FT_Err_Ok else {
-            fatalError("Can not set char size for a given face!")
+        guard FT_Set_Pixel_Sizes(&face!.pointee, pixelHeight, pixelWidth) == FT_Err_Ok else {
+            fatalError("Error during initialization! Can not set char pixel for a choosen face!")
         }
         
+    }
+    
+    public func setChar(height: Int, width: Int, horizontalResolution: UInt32, verticalResolution: UInt32) {
+        guard FT_Set_Char_Size(&face!.pointee, height, width, horizontalResolution, verticalResolution) == FT_Err_Ok else {
+            fatalError("Can not set char size!")
+        }
+    }
+    
+    public func setPixel(height: UInt32, width: UInt32) {
+        guard FT_Set_Pixel_Sizes(&face!.pointee, height, width) == FT_Err_Ok else {
+            fatalError("Can not set pixel size!")
+        }
     }
     
     public func generatePointsForDrawing() -> [Point] {
@@ -365,7 +375,7 @@ public class Text: Drawable {
                 //determin kerning offset
                 var kerningDistanceVector = FT_Vector(x: 0, y: 0)
                 FT_Get_Kerning(face, previousGlyphIndex, glyphIndex, FT_KERNING_DEFAULT.rawValue, &kerningDistanceVector)
-//                print("Kerning: \(kerningDistanceVector.x)")
+                //print("Kerning: \(kerningDistanceVector.x)")
                 
                 //adjust summary offset
                 let adjustedOffset = Int(summaryLeftOffset) + kerningDistanceVector.x
@@ -380,7 +390,7 @@ public class Text: Drawable {
                         while power < 8 {
                             let mask: UInt8 = UInt8(pow(2.0,Double(power)))
                             if byte & mask > 0 {
-//                                print("Adding point for:\nbyte:\t\(String(byte, radix: 2))\nmask:\t\(String(mask, radix: 2))")
+                                //print("Adding point for:\nbyte:\t\(String(byte, radix: 2))\nmask:\t\(String(mask, radix: 2))")
                                 result.append(Point(x: Int(x)*8+Int(7-power) +  adjustedOffset, y: Int(y)+Int(downOffset)))
                             }
                             power += 1
@@ -391,10 +401,6 @@ public class Text: Drawable {
                 summaryLeftOffset += UInt32(face!.pointee.glyph.pointee.metrics.horiAdvance) >> 6
             }
         }
-        
-        
-        
-        result.forEach({ print(String(describing: $0)) })
         return result
     }
     
