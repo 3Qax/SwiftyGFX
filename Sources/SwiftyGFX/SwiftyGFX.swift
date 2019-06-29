@@ -11,8 +11,6 @@ public struct Point: Equatable, CustomStringConvertible {
     public var x: Int
     public var y: Int
     
-    
-    
     public init(x: Int, y: Int) {
         self.x = x
         self.y = y
@@ -29,16 +27,14 @@ public struct Point: Equatable, CustomStringConvertible {
 }
 
 public protocol Drawable {
-    var origin: Point { get set }
-    
-    func generatePointsForDrawing() -> [Point]
+    func generatePointsForDrawing() -> [(Int, Int)]
 }
 
 //Using Bresenham's line algorithm
-func pointsForLine(from p1: Point, to p2: Point) -> [Point] {
+func pointsForLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
     
     guard p1.x != p2.x && p1.y != p2.y else {
-        return [p1]
+        return [(p1.x, p1.y)]
     }
     
     let Δx = p1.x - p2.x
@@ -48,14 +44,14 @@ func pointsForLine(from p1: Point, to p2: Point) -> [Point] {
     let αx = Δx < 0 ? 1 : -1
     let αy = Δy < 0 ? 1 : -1
     
-    var result = [Point]()
+    var result = [(Int, Int)]()
     
     if abs(Δy) < abs(Δx) {
         let α = Double(Δy) / Double(Δx)
         let pitch = Double(p1.y) - α * Double(p1.x) //to wysokość
         var p1 = p1
         while p1.x != p2.x {
-            result.append(Point(x: p1.x, y: Int((α * Double(p1.x) + pitch).rounded())))
+            result.append((p1.x, Int((α * Double(p1.x) + pitch).rounded())))
             p1.x += αx
         }
     } else {
@@ -63,49 +59,54 @@ func pointsForLine(from p1: Point, to p2: Point) -> [Point] {
         let pitch = Double(p1.x) - α * Double(p1.y)
         var p1 = p1
         while p1.y != p2.y {
-            result.append(Point(x: Int((α * Double(p1.y) + pitch).rounded()), y: p1.y))
+            result.append((Int((α * Double(p1.y) + pitch).rounded()), p1.y))
             p1.y += αy
         }
     }
     
-    result.append(p2)
+    result.append((p2.x, p2.y))
     return result
 }
 
-func pointsForVerticalLine(from p1: Point, to p2: Point) -> [Point] {
+func pointsForVerticalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
     
     guard p1.y != p2.y else {
-        return [p1]
+        return [(p1.x, p1.y)]
     }
     
-    var result = [Point]()
+    var result = [(Int, Int)]()
     
     for y in stride(from: p1.y, through: p2.y, by: p1.y > p2.y ? -1 : 1) {
-        result.append(Point(x: y, y: p1.y))
+        result.append((y, p1.y))
     }
     
     return result
     
 }
 
-func pointsForHorizontalLine(from p1: Point, to p2: Point) -> [Point] {
+func pointsForHorizontalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
     
     guard p1.x != p2.x else {
-        return [p1]
+        return [(p1.x, p1.y)]
     }
     
-    var result = [Point]()
+    var result = [(Int, Int)]()
     
     for x in stride(from: p1.x, through: p2.x, by: p1.x > p2.x ? -1 : 1) {
-        result.append(Point(x: x, y: p1.y))
+        result.append((x, p1.y))
     }
     
     return result
     
+}
+
+fileprivate extension Array where Element == (Int, Int) {
+    func movedTo(_ point: Point) -> [(Int, Int)] {
+        return self.map({ return ($0.0+point.x, $0.1+point.y)})
+    }
 }
 
 public class ObliqueLine: Drawable {
-    
     public var origin: Point
     public var endPoint: Point
     
@@ -114,7 +115,7 @@ public class ObliqueLine: Drawable {
         self.origin = origin
     }
     
-    public func generatePointsForDrawing() -> [Point] {
+    public func generatePointsForDrawing() -> [(Int, Int)] {
         return pointsForLine(from: origin, to: endPoint)
     }
     
@@ -125,7 +126,7 @@ public class HorizontalLine: ObliqueLine {
         self.init(from: origin, to: Point(x: origin.x + lenght, y: origin.y))
     }
     
-    override public func generatePointsForDrawing() -> [Point] {
+    override public func generatePointsForDrawing() -> [(Int, Int)] {
         return pointsForHorizontalLine(from: origin, to: endPoint)
     }
     
@@ -136,7 +137,7 @@ public class VerticalLine: ObliqueLine {
         self.init(from: origin, to: Point(x: origin.x, y: origin.y + lenght))
     }
     
-    override public func generatePointsForDrawing() -> [Point] {
+    override public func generatePointsForDrawing() -> [(Int, Int)] {
         return pointsForVerticalLine(from: origin, to: endPoint)
     }
     
@@ -166,13 +167,13 @@ public class Rectangle: Drawable {
         self.width = width
     }
     
-    public func generatePointsForDrawing() -> [Point] {
-        var result = [Point]()
+    public func generatePointsForDrawing() -> [(Int, Int)] {
+        var result = [(Int, Int)]()
         result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: width, y: 0)))
         result.append(contentsOf: pointsForHorizontalLine(from: Point(x: width, y: 0), to: Point(x: width, y: height)))
         result.append(contentsOf: pointsForVerticalLine(from: Point(x: width, y: height), to: Point(x: 0, y: width)))
         result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
-        return result
+        return result.movedTo(origin)
     }
 
 }
@@ -211,9 +212,9 @@ public class Ellipse: Drawable {
         self.xRadius = width/2
     }
     
-    public func generatePointsForDrawing() -> [Point] {
+    public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [Point]()
+        var result = [(Int, Int)]()
         
         //for filled version
         // do the horizontal diameter
@@ -221,8 +222,8 @@ public class Ellipse: Drawable {
 //            result.append(Point(x: x + xRadius, y: yRadius))
 //        }
         
-        result.append(Point(x: 0, y: yRadius))
-        result.append(Point(x: 2 * xRadius, y: yRadius))
+        result.append((0, yRadius))
+        result.append((2 * xRadius, yRadius))
         
         var x0 = xRadius
         var dx = 0
@@ -245,13 +246,13 @@ public class Ellipse: Drawable {
 //                result.append(Point(x: x + xRadius, y: y + yRadius))
 //            }
             
-            result.append(Point(x: -x0 + xRadius, y: y + yRadius))
-            result.append(Point(x: -x0 + xRadius, y: -y + yRadius))
-            result.append(Point(x: x0 + xRadius, y: y + yRadius))
-            result.append(Point(x: x0 + xRadius, y: -y + yRadius))
+            result.append((-x0 + xRadius, y + yRadius))
+            result.append((-x0 + xRadius, -y + yRadius))
+            result.append((x0 + xRadius, y + yRadius))
+            result.append((x0 + xRadius, -y + yRadius))
             
         }
-        return result
+        return result.movedTo(origin)
     }
     
 }
@@ -280,9 +281,9 @@ public class Triangle: Drawable {
         self.p3 = corner3
     }
 
-    public func generatePointsForDrawing() -> [Point] {
+    public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [Point]()
+        var result = [(Int, Int)]()
         
         if (p1.x == p2.x) {
             result.append(contentsOf: pointsForVerticalLine(from: p1, to: p2))
@@ -308,7 +309,7 @@ public class Triangle: Drawable {
             result.append(contentsOf: pointsForLine(from: p1, to: p3))
         }
         
-        return result
+        return result.movedTo(origin)
     }
 
 }
@@ -350,9 +351,9 @@ public class Text: Drawable {
         }
     }
     
-    public func generatePointsForDrawing() -> [Point] {
+    public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [Point]()
+        var result = [(Int, Int)]()
         
         
         var previousGlyphIndex: UInt32 = 0
@@ -391,7 +392,8 @@ public class Text: Drawable {
                             let mask: UInt8 = UInt8(pow(2.0,Double(power)))
                             if byte & mask > 0 {
                                 //print("Adding point for:\nbyte:\t\(String(byte, radix: 2))\nmask:\t\(String(mask, radix: 2))")
-                                result.append(Point(x: Int(x)*8+Int(7-power) +  adjustedOffset, y: Int(y)+Int(downOffset)))
+                                //result.append(Point(x: Int(x)*8+Int(7-power) +  adjustedOffset, y: Int(y)+Int(downOffset)))
+                                result.append((Int(x)*8+Int(7-power) +  adjustedOffset, Int(y)+Int(downOffset)))
                             }
                             power += 1
                         }
@@ -401,7 +403,7 @@ public class Text: Drawable {
                 summaryLeftOffset += UInt32(face!.pointee.glyph.pointee.metrics.horiAdvance) >> 6
             }
         }
-        return result
+        return result.movedTo(origin)
     }
     
     

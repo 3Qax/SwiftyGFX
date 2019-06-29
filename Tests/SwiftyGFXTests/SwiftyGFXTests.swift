@@ -68,7 +68,8 @@ final class SwiftyGFXTests: XCTestCase {
     
     func testTextDrawing() {
         let myDrawing = Text("example of text drawing! 123", font: "/Library/Fonts/Arial.ttf", at: Point(x: 0, y: 0))
-        myDrawing.generatePointsForDrawing()
+        myDrawing.setPixel(height: 32, width: 32)
+        myDrawing.generatePointsForDrawing().forEach({ print("\($0.x) \($0.y)") })
     }
     
     static var allTests = [
