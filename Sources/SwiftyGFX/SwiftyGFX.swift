@@ -106,6 +106,7 @@ fileprivate extension Array where Element == (Int, Int) {
     }
 }
 
+//Lines
 public class ObliqueLine: Drawable {
     public var origin: Point
     public var endPoint: Point
@@ -143,6 +144,7 @@ public class VerticalLine: ObliqueLine {
     
 }
 
+//Rectangles
 public class Rectangle: Drawable {
 
     public var origin: Point
@@ -161,7 +163,7 @@ public class Rectangle: Drawable {
         }
     }
     
-    init(at origin: Point, height: Int, width: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int) {
         self.origin = origin
         self.height = height
         self.width = width
@@ -178,11 +180,12 @@ public class Rectangle: Drawable {
 
 }
 public class Square: Rectangle {
-    init(at origin: Point, sideSize a: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), sideSize a: Int) {
         super.init(at: origin, height: a, width: a)
     }
 }
 
+//Ellipses
 public class Ellipse: Drawable {
     public var origin: Point
     public var yRadius: Int {
@@ -200,13 +203,13 @@ public class Ellipse: Drawable {
         }
     }
     
-    init(at origin: Point, yRadius: Int, xRadius: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), yRadius: Int, xRadius: Int) {
         self.origin = origin
         self.yRadius = yRadius
         self.xRadius = xRadius
     }
 
-    init(at origin: Point, height: Int, width: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int) {
         self.origin = origin
         self.yRadius = height/2
         self.xRadius = width/2
@@ -258,23 +261,24 @@ public class Ellipse: Drawable {
 }
 public class Circle: Ellipse {
     
-    init(at origin: Point, radius: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), radius: Int) {
         super.init(at: origin, yRadius: radius, xRadius: radius)
     }
     
-    init(at origin: Point, width: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), width: Int) {
         super.init(at: origin, yRadius: width/2, xRadius: width/2)
     }
     
 }
 
+//Traingels
 public class Triangle: Drawable {
     public var origin: Point
     public var p1: Point
     public var p2: Point
     public var p3: Point
     
-    init(at origin: Point, corner1: Point, corner2: Point, corner3: Point) {
+    init(at origin: Point = Point(x: 0, y: 0), corner1: Point, corner2: Point, corner3: Point) {
         self.origin = origin
         self.p1 = corner1
         self.p2 = corner2
@@ -314,13 +318,14 @@ public class Triangle: Drawable {
 
 }
 
+//Text
 public class Text: Drawable {
     public var origin: Point
     public var text: String
     private var library: FT_Library?
     private var face: FT_Face?
     
-    public init(_ text: String, font pathToFont: String, at origin: Point, pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16) {
+    public init(_ text: String, font pathToFont: String, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16) {
         self.origin = origin
         self.text = text
         

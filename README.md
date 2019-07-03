@@ -15,11 +15,13 @@ A swift graphics library intended for my SwiftyOLED library.
 
 ## Documentation
 
-#### Orthogonal coordinate system
+### Coordinate system
 
 This library uses iOS like coordinate system. The X axis is increasing to the right. The Y axis is increasing downwards.
 
 ### Primitives
+
+The library defines following groups of primitives:
 
 #### Lines
 
@@ -29,34 +31,40 @@ This library uses iOS like coordinate system. The X axis is increasing to the ri
     VerticalLine(from origin: Point, lenght: Int)
 ```
 
-### Rectangles
+#### Rectangles
 
 ```swift
-    Rectangle(at origin: Point, height: Int, width: Int)
-    Square(at origin: Point, sideSize a: Int)
+    Rectangle(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int)
+    Square(at origin: Point = Point(x: 0, y: 0), sideSize a: Int)
 ```
 
-### Ellipses
+#### Ellipses
 
 ```swift
-    Ellipse(at origin: Point, yRadius: Int, xRadius: Int)
-    Ellipse(at origin: Point, height: Int, width: Int)
-    Circle(at origin: Point, radius: Int)
-    Circle(at origin: Point, width: Int)
+    Ellipse(at origin: Point = Point(x: 0, y: 0), yRadius: Int, xRadius: Int)
+    Ellipse(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int)
+    Circle(at origin: Point = Point(x: 0, y: 0), radius: Int)
+    Circle(at origin: Point = Point(x: 0, y: 0), width: Int)
 ```
 
-### Triangle
+#### Triangles
 
 ```swift
-    Triangle(at origin: Point, corner1: Point, corner2: Point, corner3: Point)
+    Triangle(at origin: Point = Point(x: 0, y: 0), corner1: Point, corner2: Point, corner3: Point)
 ```
 
-### Text
+#### Text
 
 ```swift
-    Text(_ text: String, font pathToFont: String, at origin: Point, pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16)
+    Text(_ text: String, font pathToFont: String, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16)
 
 ```
+
+### Rendering
+
+For each of above mentioned primitives you can generate array of tuplets of integer and integer. This effectively is array of points (each having X and Y coordinate). They can be passed to the display library of your choice and therefore be displayed. 
 
 ## Contributing
+
+Feel free to sugest changes, report bugs and issues, create pull requests.
 
