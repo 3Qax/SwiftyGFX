@@ -21,9 +21,11 @@ This library uses iOS like coordinate system. The X axis is increasing to the ri
 
 ### Primitives
 
-The library defines following groups of primitives:
+Each of defined primitives conforms to _Drawable_ protocool. The library defines following groups of primitives:
 
 #### Lines
+
+The Bresenham's was used for drawing oblique lines. Even though you can draw horizontal and vertical lines with `ObliqueLine` class it is way faster to used either `HorizontalLine` or `VerticalLine` class.
 
 ```swift
     ObliqueLine(from origin: Point, to endPoint: Point)
@@ -62,7 +64,7 @@ The library defines following groups of primitives:
 
 ### Rendering
 
-For each of above mentioned primitives you can generate array of tuplets of integer and integer. This effectively is array of points (each having X and Y coordinate). They can be passed to the display library of your choice and therefore be displayed. 
+The _Drawable_ protocool guarantes that for each object you can generate array of tuplets of integer and integer by calling `.generatePointsForDrawing()`. This effectively is array of points (each having X and Y coordinate). They can be passed to the display library of your choice and therefore be displayed. 
 
 ## Contributing
 

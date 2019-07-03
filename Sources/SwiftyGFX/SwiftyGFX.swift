@@ -70,14 +70,11 @@ func pointsForLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
 
 func pointsForVerticalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
     
-    guard p1.y != p2.y else {
-        return [(p1.x, p1.y)]
-    }
-    
     var result = [(Int, Int)]()
+    result.reserveCapacity(abs(p2.y-p1.y))
     
     for y in stride(from: p1.y, through: p2.y, by: p1.y > p2.y ? -1 : 1) {
-        result.append((y, p1.y))
+        result.append((p1.x, y))
     }
     
     return result
@@ -86,11 +83,8 @@ func pointsForVerticalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
 
 func pointsForHorizontalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
     
-    guard p1.x != p2.x else {
-        return [(p1.x, p1.y)]
-    }
-    
     var result = [(Int, Int)]()
+    result.reserveCapacity(abs(p2.x-p1.x))
     
     for x in stride(from: p1.x, through: p2.x, by: p1.x > p2.x ? -1 : 1) {
         result.append((x, p1.y))
