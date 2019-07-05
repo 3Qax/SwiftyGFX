@@ -24,10 +24,21 @@ public struct Point: Equatable, CustomStringConvertible {
         return "\(x)\t\(y)"
     }
     
+    public var coordinates: (Int, Int) {
+        return (x, y)
+    }
+    
 }
 
 public protocol Drawable {
+    var origin: Point { get set }
     func generatePointsForDrawing() -> [(Int, Int)]
+}
+
+public protocol Fillable {
+    associatedtype T
+    mutating func fill()
+    func filled() -> T
 }
 
 //Using Bresenham's line algorithm
@@ -101,7 +112,7 @@ fileprivate extension Array where Element == (Int, Int) {
 }
 
 //Lines
-public class ObliqueLine: Drawable {
+public struct ObliqueLine: Drawable {
     public var origin: Point
     public var endPoint: Point
     
@@ -115,33 +126,74 @@ public class ObliqueLine: Drawable {
     }
     
 }
-public class HorizontalLine: ObliqueLine {
+public struct HorizontalLine: Drawable {
     
-    convenience init(from origin: Point, lenght: Int) {
-        self.init(from: origin, to: Point(x: origin.x + lenght, y: origin.y))
+    public var origin: Point
+    public var endPoint: Point
+    
+    //This initializer fails if two point are can not be connected using vertical line
+    init?(from origin: Point, to endPoint: Point) {
+        
+        guard origin.y == endPoint.y else {
+            print("Initializer failed because two point are not on horizontal line")
+            return nil;
+        }
+        
+        self.origin = origin
+        self.endPoint = endPoint
     }
     
-    override public func generatePointsForDrawing() -> [(Int, Int)] {
+    init?(from origin: Point, lenght: Int) {
+        guard lenght > 0 else {
+            print("Initializer failed due to lenght of the line being smaller than or equal zero!")
+            return nil
+        }
+        self.origin = origin
+        self.endPoint = Point(x: origin.x+lenght, y: origin.y)
+    }
+    
+    public func generatePointsForDrawing() -> [(Int, Int)] {
         return pointsForHorizontalLine(from: origin, to: endPoint)
     }
     
 }
-public class VerticalLine: ObliqueLine {
+public struct VerticalLine: Drawable {
     
-    convenience init(from origin: Point, lenght: Int) {
-        self.init(from: origin, to: Point(x: origin.x, y: origin.y + lenght))
+    public var origin: Point
+    public var endPoint: Point
+    
+    //This initializer fails if two point are can not be connected using vertical line
+    init?(from origin: Point, to endPoint: Point) {
+        
+        guard origin.x == endPoint.x else {
+            print("Initializer failed because two point are not on vertical line")
+            return nil;
+        }
+        
+        self.origin = origin
+        self.endPoint = endPoint
     }
     
-    override public func generatePointsForDrawing() -> [(Int, Int)] {
+    init?(from origin: Point, lenght: Int) {
+        guard lenght > 0 else {
+            print("Initializer failed due to lenght of the line being smaller than or equal zero!")
+            return nil
+        }
+        self.origin = origin
+        self.endPoint = Point(x: origin.x, y: origin.y+lenght)
+    }
+    
+    public func generatePointsForDrawing() -> [(Int, Int)] {
         return pointsForVerticalLine(from: origin, to: endPoint)
     }
     
 }
 
 //Rectangles
-public class Rectangle: Drawable {
-
+public struct Rectangle: Drawable, Fillable {
+    
     public var origin: Point
+    public private(set) var isFilled = false
     public var width: Int {
         willSet {
             guard newValue > 0 else {
@@ -163,25 +215,96 @@ public class Rectangle: Drawable {
         self.width = width
     }
     
+    mutating public func fill() {
+        self.isFilled = true
+    }
+    
+    public func filled() -> Rectangle {
+        var result = self
+        result.isFilled = true
+        return self
+    }
+    
     public func generatePointsForDrawing() -> [(Int, Int)] {
         var result = [(Int, Int)]()
-        result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: width, y: 0)))
-        result.append(contentsOf: pointsForHorizontalLine(from: Point(x: width, y: 0), to: Point(x: width, y: height)))
-        result.append(contentsOf: pointsForVerticalLine(from: Point(x: width, y: height), to: Point(x: 0, y: width)))
-        result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
+        
+        switch isFilled {
+        case true:
+            for i in 0...height-1 {
+                    result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: width-1, y: i)))
+            }
+        case false:
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: width, y: 0)))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: width, y: 0), to: Point(x: width, y: height)))
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: width, y: height), to: Point(x: 0, y: width)))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
+        }
+        
         return result.movedTo(origin)
     }
 
 }
-public class Square: Rectangle {
-    init(at origin: Point = Point(x: 0, y: 0), sideSize a: Int) {
-        super.init(at: origin, height: a, width: a)
+public struct Square: Drawable, Fillable {
+    
+    public var origin: Point
+    public private(set) var isFilled = false
+    public var width: Int {
+        willSet {
+            guard newValue > 0 else {
+                fatalError("Width have to be greater than 0!")
+            }
+        }
     }
+    public var height: Int {
+        willSet {
+            guard newValue > 0 else {
+                fatalError("Height have to be greater than 0!")
+            }
+        }
+    }
+    
+    
+    init(at origin: Point = Point(x: 0, y: 0), sideSize a: Int) {
+        self.origin = origin
+        self.height = a
+        self.width = a
+    }
+    
+    mutating public func fill() {
+        self.isFilled = true
+    }
+    
+    public func filled() -> Square {
+        var result = self
+        result.isFilled = true
+        return self
+    }
+    
+    public func generatePointsForDrawing() -> [(Int, Int)] {
+        var result = [(Int, Int)]()
+        
+        switch isFilled {
+        case true:
+            for i in 0...height-1 {
+                result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: width-1, y: i)))
+            }
+        case false:
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: width, y: 0)))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: width, y: 0), to: Point(x: width, y: height)))
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: width, y: height), to: Point(x: 0, y: width)))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
+        }
+        
+        return result.movedTo(origin)
+    }
+
 }
 
 //Ellipses
-public class Ellipse: Drawable {
+public struct Ellipse: Drawable, Fillable {
+    
     public var origin: Point
+    public private(set) var isFilled = false
     public var yRadius: Int {
         willSet {
             guard newValue > 0 else {
@@ -209,68 +332,190 @@ public class Ellipse: Drawable {
         self.xRadius = width/2
     }
     
+    mutating public func fill() {
+        self.isFilled = true
+    }
+    
+    public func filled() -> Ellipse {
+        var result = self
+        result.isFilled = true
+        return result
+    }
+    
     public func generatePointsForDrawing() -> [(Int, Int)] {
         
         var result = [(Int, Int)]()
         
-        //for filled version
-        // do the horizontal diameter
-//        for x in stride(from: -xRadius, through: xRadius, by: 1) {
-//            result.append(Point(x: x + xRadius, y: yRadius))
-//        }
-        
-        result.append((0, yRadius))
-        result.append((2 * xRadius, yRadius))
-        
-        var x0 = xRadius
-        var dx = 0
-        
-        // now do both halves at the same time, away from the diameter
-        for y in stride(from: 1, through: yRadius, by: 1) {
-            var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
+        switch isFilled {
+        case true:
             
-            while x1 > 0 {
-                if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
-                x1 -= 1
+            for x in stride(from: -xRadius, through: xRadius, by: 1) {
+                result.append((x + xRadius, yRadius))
             }
-           
-            dx = x0 - x1;  // current approximation of the slope
-            x0 = x1;
             
-            //for filled version
-//            for x in stride(from: -x0, through: x0, by: 1) {
-//                result.append(Point(x: x + xRadius, y: -y + yRadius))
-//                result.append(Point(x: x + xRadius, y: y + yRadius))
-//            }
+            var x0 = xRadius
+            var dx = 0
             
-            result.append((-x0 + xRadius, y + yRadius))
-            result.append((-x0 + xRadius, -y + yRadius))
-            result.append((x0 + xRadius, y + yRadius))
-            result.append((x0 + xRadius, -y + yRadius))
+            // now do both halves at the same time, away from the diameter
+            for y in stride(from: 1, through: yRadius, by: 1) {
+                var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
+                
+                while x1 > 0 {
+                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    x1 -= 1
+                }
+                
+                dx = x0 - x1;  // current approximation of the slope
+                x0 = x1;
+                
+                for x in stride(from: -x0, through: x0, by: 1) {
+                    result.append((x + xRadius, -y + yRadius))
+                    result.append((x + xRadius, y + yRadius))
+                }
+                
+            }
+        case false:
             
+            result.append((0, yRadius))
+            result.append((2 * xRadius, yRadius))
+            
+            var x0 = xRadius
+            var dx = 0
+            
+            // now do both halves at the same time, away from the diameter
+            for y in stride(from: 1, through: yRadius, by: 1) {
+                var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
+                
+                while x1 > 0 {
+                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    x1 -= 1
+                }
+                
+                dx = x0 - x1;  // current approximation of the slope
+                x0 = x1;
+                
+                result.append((-x0 + xRadius, y + yRadius))
+                result.append((-x0 + xRadius, -y + yRadius))
+                result.append((x0 + xRadius, y + yRadius))
+                result.append((x0 + xRadius, -y + yRadius))
+            }
         }
         return result.movedTo(origin)
     }
     
 }
-public class Circle: Ellipse {
+public struct Circle: Drawable, Fillable {
+    
+    public var origin: Point
+    public private(set) var isFilled = false
+    public var yRadius: Int {
+        willSet {
+            guard newValue > 0 else {
+                fatalError("Y radius can not be smaller then or equal to zero")
+            }
+        }
+    }
+    public var xRadius: Int {
+        willSet {
+            guard newValue > 0 else {
+                fatalError("X radius can not be smaller then or equal to zero")
+            }
+        }
+    }
     
     init(at origin: Point = Point(x: 0, y: 0), radius: Int) {
-        super.init(at: origin, yRadius: radius, xRadius: radius)
+        self.origin = origin
+        self.yRadius = radius
+        self.xRadius = radius
     }
     
     init(at origin: Point = Point(x: 0, y: 0), width: Int) {
-        super.init(at: origin, yRadius: width/2, xRadius: width/2)
+        self.origin = origin
+        self.yRadius = width/2
+        self.xRadius = width/2
+    }
+    
+    mutating public func fill() {
+        self.isFilled = true
+    }
+    
+    public func filled() -> Circle {
+        var result = self
+        result.isFilled = true
+        return result
+    }
+    
+    public func generatePointsForDrawing() -> [(Int, Int)] {
+        
+        var result = [(Int, Int)]()
+        
+        switch isFilled {
+        case true:
+            
+            for x in stride(from: -xRadius, through: xRadius, by: 1) {
+                result.append((x + xRadius, yRadius))
+            }
+            
+            var x0 = xRadius
+            var dx = 0
+            
+            // now do both halves at the same time, away from the diameter
+            for y in stride(from: 1, through: yRadius, by: 1) {
+                var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
+                
+                while x1 > 0 {
+                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    x1 -= 1
+                }
+                
+                dx = x0 - x1;  // current approximation of the slope
+                x0 = x1;
+                
+                for x in stride(from: -x0, through: x0, by: 1) {
+                    result.append((x + xRadius, -y + yRadius))
+                    result.append((x + xRadius, y + yRadius))
+                }
+                
+            }
+        case false:
+            
+            result.append((0, yRadius))
+            result.append((2 * xRadius, yRadius))
+            
+            var x0 = xRadius
+            var dx = 0
+            
+            // now do both halves at the same time, away from the diameter
+            for y in stride(from: 1, through: yRadius, by: 1) {
+                var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
+                
+                while x1 > 0 {
+                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    x1 -= 1
+                }
+                
+                dx = x0 - x1;  // current approximation of the slope
+                x0 = x1;
+                
+                result.append((-x0 + xRadius, y + yRadius))
+                result.append((-x0 + xRadius, -y + yRadius))
+                result.append((x0 + xRadius, y + yRadius))
+                result.append((x0 + xRadius, -y + yRadius))
+            }
+        }
+        return result.movedTo(origin)
     }
     
 }
 
 //Traingels
-public class Triangle: Drawable {
+public struct Triangle: Drawable, Fillable {
+    
     public var origin: Point
     public var p1: Point
     public var p2: Point
     public var p3: Point
+    public private(set) var isFilled = false
     
     init(at origin: Point = Point(x: 0, y: 0), corner1: Point, corner2: Point, corner3: Point) {
         self.origin = origin
@@ -278,42 +523,89 @@ public class Triangle: Drawable {
         self.p2 = corner2
         self.p3 = corner3
     }
+    
+    mutating public func fill() {
+        self.isFilled = true
+    }
+    
+    public func filled() -> Triangle {
+        var result = self
+        result.isFilled = true
+        return result
+    }
 
     public func generatePointsForDrawing() -> [(Int, Int)] {
         
         var result = [(Int, Int)]()
         
-        if (p1.x == p2.x) {
-            result.append(contentsOf: pointsForVerticalLine(from: p1, to: p2))
-        } else if (p1.y == p2.y) {
-            result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p2))
-        } else {
-            result.append(contentsOf: pointsForLine(from: p1, to: p2))
-        }
-        
-        if (p2.x == p3.x) {
-            result.append(contentsOf: pointsForVerticalLine(from: p2, to: p3))
-        } else if (p2.y == p3.y) {
-            result.append(contentsOf: pointsForHorizontalLine(from: p2, to: p3))
-        } else {
-            result.append(contentsOf: pointsForLine(from: p2, to: p3))
-        }
-        
-        if (p1.x == p3.x) {
-            result.append(contentsOf: pointsForVerticalLine(from: p1, to: p3))
-        } else if (p1.y == p3.y) {
-            result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p3))
-        } else {
-            result.append(contentsOf: pointsForLine(from: p1, to: p3))
+        switch isFilled {
+        case true:
+            
+            let boundingBoxHeight = max(abs(p2.y-p1.y), abs(p3.y-p2.y), abs(p1.y-p3.y))
+            var buff_x0 = Array<Int>()
+            var buff_x1 = Array<Int>()
+            
+            let linesPoints = [(p1, p2), (p2, p3), (p3, p1)]
+            for (start, end) in linesPoints {
+                let Δy = end.y - start.y
+                if Δy < 0 {
+                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForLine(from: start, to: end).dropFirst())
+                        .forEach({
+                            buff_x0.append($0.0)
+                        })
+                } else if Δy > 0 {
+                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForLine(from: start, to: end).dropFirst())
+                        .forEach({
+                            buff_x1.append($0.0)
+                        })
+                } else { // Δy == 0
+                    buff_x0.append(start.x)
+                    buff_x1.append(end.x)
+                }
+            }
+            
+            for y in 0..<boundingBoxHeight {
+                result.append(contentsOf: pointsForHorizontalLine(from: Point(x: buff_x0[y], y: y),
+                                                                  to: Point(x: buff_x1[y], y: y)))
+            }
+            
+            result.append(p1.coordinates)
+            result.append(p2.coordinates)
+            result.append(p3.coordinates)
+        case false:
+            if (p1.x == p2.x) {
+                result.append(contentsOf: pointsForVerticalLine(from: p1, to: p2))
+            } else if (p1.y == p2.y) {
+                result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p2))
+            } else {
+                result.append(contentsOf: pointsForLine(from: p1, to: p2))
+            }
+            
+            if (p2.x == p3.x) {
+                result.append(contentsOf: pointsForVerticalLine(from: p2, to: p3))
+            } else if (p2.y == p3.y) {
+                result.append(contentsOf: pointsForHorizontalLine(from: p2, to: p3))
+            } else {
+                result.append(contentsOf: pointsForLine(from: p2, to: p3))
+            }
+            
+            if (p1.x == p3.x) {
+                result.append(contentsOf: pointsForVerticalLine(from: p1, to: p3))
+            } else if (p1.y == p3.y) {
+                result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p3))
+            } else {
+                result.append(contentsOf: pointsForLine(from: p1, to: p3))
+            }
         }
         
         return result.movedTo(origin)
+        
     }
 
 }
 
 //Text
-public class Text: Drawable {
+public struct Text: Drawable {
     public var origin: Point
     public var text: String
     private var library: FT_Library?

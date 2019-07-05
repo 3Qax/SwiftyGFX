@@ -4,11 +4,10 @@ A swift graphics library intended for my SwiftyOLED library.
 
 ## Key features
 
-* Ability to use any font in _.ttf_ or _.otf_
+* Ability to render any font provided in _.ttf_ or _.otf_
 
 ## TODO
 
-* Add `.fill()` and `.filled()`
 * Write unit tests that makes sense
 * Provide a defualt path to look for fonts
 * Add more triangle initializers (using trigonometry magic to extrapolate data)
