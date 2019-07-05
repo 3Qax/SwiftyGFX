@@ -90,14 +90,14 @@ final class SwiftyGFXTests: XCTestCase {
     }
     
     func testCircleDrawing() {
-        var myCircle = Circle(radius: 5)
+        let myCircle = Circle(radius: 5)
         
         myCircle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
         
     }
     
     func testFilledDrawing() {
-        var myCircle = Circle(radius: 5).filled()
+        let myCircle = Circle(radius: 5).filled()
         
         myCircle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
         

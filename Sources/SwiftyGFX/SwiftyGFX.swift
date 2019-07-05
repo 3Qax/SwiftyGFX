@@ -30,6 +30,17 @@ public struct Point: Equatable, CustomStringConvertible {
     
 }
 
+fileprivate extension Array where Element == Point {
+    
+    func movedTo(_ point: Point) -> [Point] {
+        return self.map({ return Point(x: $0.x+point.x, y: $0.y+point.y)})
+    }
+    
+    func convertedToCoordinates() -> [(Int, Int)] {
+        return self.map({ $0.coordinates })
+    }
+}
+
 public protocol Drawable {
     var origin: Point { get set }
     func generatePointsForDrawing() -> [(Int, Int)]
@@ -42,11 +53,9 @@ public protocol Fillable {
 }
 
 //Using Bresenham's line algorithm
-func pointsForLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
+internal func pointsForLine(from p1: Point, to p2: Point) -> [Point] {
     
-    guard p1.x != p2.x && p1.y != p2.y else {
-        return [(p1.x, p1.y)]
-    }
+    guard p1.x != p2.x && p1.y != p2.y else { return [p1] }
     
     let Δx = p1.x - p2.x
     let Δy = p1.y - p2.y
@@ -55,14 +64,14 @@ func pointsForLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
     let αx = Δx < 0 ? 1 : -1
     let αy = Δy < 0 ? 1 : -1
     
-    var result = [(Int, Int)]()
+    var result = [Point]()
     
     if abs(Δy) < abs(Δx) {
         let α = Double(Δy) / Double(Δx)
         let pitch = Double(p1.y) - α * Double(p1.x) //to wysokość
         var p1 = p1
         while p1.x != p2.x {
-            result.append((p1.x, Int((α * Double(p1.x) + pitch).rounded())))
+            result.append(Point(x: p1.x, y: Int((α * Double(p1.x) + pitch).rounded())))
             p1.x += αx
         }
     } else {
@@ -70,45 +79,39 @@ func pointsForLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
         let pitch = Double(p1.x) - α * Double(p1.y)
         var p1 = p1
         while p1.y != p2.y {
-            result.append((Int((α * Double(p1.y) + pitch).rounded()), p1.y))
+            result.append(Point(x: Int((α * Double(p1.y) + pitch).rounded()), y: p1.y))
             p1.y += αy
         }
     }
     
-    result.append((p2.x, p2.y))
+    result.append(p2)
     return result
 }
 
-func pointsForVerticalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
+internal func pointsForVerticalLine(from p1: Point, to p2: Point) -> [Point] {
     
-    var result = [(Int, Int)]()
+    var result = [Point]()
     result.reserveCapacity(abs(p2.y-p1.y))
     
     for y in stride(from: p1.y, through: p2.y, by: p1.y > p2.y ? -1 : 1) {
-        result.append((p1.x, y))
+        result.append(Point(x: p1.x, y: y))
     }
     
     return result
     
 }
 
-func pointsForHorizontalLine(from p1: Point, to p2: Point) -> [(Int, Int)] {
+internal func pointsForHorizontalLine(from p1: Point, to p2: Point) -> [Point] {
     
-    var result = [(Int, Int)]()
+    var result = [Point]()
     result.reserveCapacity(abs(p2.x-p1.x))
     
     for x in stride(from: p1.x, through: p2.x, by: p1.x > p2.x ? -1 : 1) {
-        result.append((x, p1.y))
+        result.append(Point(x: x, y: p1.y))
     }
     
     return result
     
-}
-
-fileprivate extension Array where Element == (Int, Int) {
-    func movedTo(_ point: Point) -> [(Int, Int)] {
-        return self.map({ return ($0.0+point.x, $0.1+point.y)})
-    }
 }
 
 //Lines
@@ -122,7 +125,7 @@ public struct ObliqueLine: Drawable {
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        return pointsForLine(from: origin, to: endPoint)
+        return pointsForLine(from: origin, to: endPoint).convertedToCoordinates()
     }
     
 }
@@ -153,7 +156,7 @@ public struct HorizontalLine: Drawable {
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        return pointsForHorizontalLine(from: origin, to: endPoint)
+        return pointsForHorizontalLine(from: origin, to: endPoint).convertedToCoordinates()
     }
     
 }
@@ -184,7 +187,7 @@ public struct VerticalLine: Drawable {
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        return pointsForVerticalLine(from: origin, to: endPoint)
+        return pointsForVerticalLine(from: origin, to: endPoint).convertedToCoordinates()
     }
     
 }
@@ -226,7 +229,7 @@ public struct Rectangle: Drawable, Fillable {
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        var result = [(Int, Int)]()
+        var result = [Point]()
         
         switch isFilled {
         case true:
@@ -240,7 +243,7 @@ public struct Rectangle: Drawable, Fillable {
             result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
         }
         
-        return result.movedTo(origin)
+        return result.movedTo(origin).convertedToCoordinates()
     }
 
 }
@@ -281,7 +284,7 @@ public struct Square: Drawable, Fillable {
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        var result = [(Int, Int)]()
+        var result = [Point]()
         
         switch isFilled {
         case true:
@@ -295,7 +298,7 @@ public struct Square: Drawable, Fillable {
             result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
         }
         
-        return result.movedTo(origin)
+        return result.movedTo(origin).convertedToCoordinates()
     }
 
 }
@@ -344,13 +347,13 @@ public struct Ellipse: Drawable, Fillable {
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [(Int, Int)]()
+        var result = [Point]()
         
         switch isFilled {
         case true:
             
             for x in stride(from: -xRadius, through: xRadius, by: 1) {
-                result.append((x + xRadius, yRadius))
+                result.append(Point(x: x + xRadius, y: yRadius))
             }
             
             var x0 = xRadius
@@ -369,15 +372,15 @@ public struct Ellipse: Drawable, Fillable {
                 x0 = x1;
                 
                 for x in stride(from: -x0, through: x0, by: 1) {
-                    result.append((x + xRadius, -y + yRadius))
-                    result.append((x + xRadius, y + yRadius))
+                    result.append(Point(x: x + xRadius, y: -y + yRadius))
+                    result.append(Point(x: x + xRadius, y: y + yRadius))
                 }
                 
             }
         case false:
             
-            result.append((0, yRadius))
-            result.append((2 * xRadius, yRadius))
+            result.append(Point(x: 0, y: yRadius))
+            result.append(Point(x: 2 * xRadius, y: yRadius))
             
             var x0 = xRadius
             var dx = 0
@@ -394,13 +397,13 @@ public struct Ellipse: Drawable, Fillable {
                 dx = x0 - x1;  // current approximation of the slope
                 x0 = x1;
                 
-                result.append((-x0 + xRadius, y + yRadius))
-                result.append((-x0 + xRadius, -y + yRadius))
-                result.append((x0 + xRadius, y + yRadius))
-                result.append((x0 + xRadius, -y + yRadius))
+                result.append(Point(x: -x0 + xRadius, y: y + yRadius))
+                result.append(Point(x: -x0 + xRadius, y: -y + yRadius))
+                result.append(Point(x: x0 + xRadius, y: y + yRadius))
+                result.append(Point(x: x0 + xRadius, y: -y + yRadius))
             }
         }
-        return result.movedTo(origin)
+        return result.movedTo(origin).convertedToCoordinates()
     }
     
 }
@@ -447,13 +450,13 @@ public struct Circle: Drawable, Fillable {
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [(Int, Int)]()
+        var result = [Point]()
         
         switch isFilled {
         case true:
             
             for x in stride(from: -xRadius, through: xRadius, by: 1) {
-                result.append((x + xRadius, yRadius))
+                result.append(Point(x: x + xRadius, y: yRadius))
             }
             
             var x0 = xRadius
@@ -472,15 +475,15 @@ public struct Circle: Drawable, Fillable {
                 x0 = x1;
                 
                 for x in stride(from: -x0, through: x0, by: 1) {
-                    result.append((x + xRadius, -y + yRadius))
-                    result.append((x + xRadius, y + yRadius))
+                    result.append(Point(x: x + xRadius, y: -y + yRadius))
+                    result.append(Point(x: x + xRadius, y: y + yRadius))
                 }
                 
             }
         case false:
             
-            result.append((0, yRadius))
-            result.append((2 * xRadius, yRadius))
+            result.append(Point(x: 0, y: yRadius))
+            result.append(Point(x: 2 * xRadius, y: yRadius))
             
             var x0 = xRadius
             var dx = 0
@@ -497,13 +500,13 @@ public struct Circle: Drawable, Fillable {
                 dx = x0 - x1;  // current approximation of the slope
                 x0 = x1;
                 
-                result.append((-x0 + xRadius, y + yRadius))
-                result.append((-x0 + xRadius, -y + yRadius))
-                result.append((x0 + xRadius, y + yRadius))
-                result.append((x0 + xRadius, -y + yRadius))
+                result.append(Point(x: -x0 + xRadius,y: y + yRadius))
+                result.append(Point(x: -x0 + xRadius,y: -y + yRadius))
+                result.append(Point(x: x0 + xRadius,y: y + yRadius))
+                result.append(Point(x: x0 + xRadius,y: -y + yRadius))
             }
         }
-        return result.movedTo(origin)
+        return result.movedTo(origin).convertedToCoordinates()
     }
     
 }
@@ -536,7 +539,7 @@ public struct Triangle: Drawable, Fillable {
 
     public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [(Int, Int)]()
+        var result = [Point]()
         
         switch isFilled {
         case true:
@@ -551,12 +554,12 @@ public struct Triangle: Drawable, Fillable {
                 if Δy < 0 {
                     (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForLine(from: start, to: end).dropFirst())
                         .forEach({
-                            buff_x0.append($0.0)
+                            buff_x0.append($0.x)
                         })
                 } else if Δy > 0 {
                     (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForLine(from: start, to: end).dropFirst())
                         .forEach({
-                            buff_x1.append($0.0)
+                            buff_x1.append($0.x)
                         })
                 } else { // Δy == 0
                     buff_x0.append(start.x)
@@ -569,9 +572,9 @@ public struct Triangle: Drawable, Fillable {
                                                                   to: Point(x: buff_x1[y], y: y)))
             }
             
-            result.append(p1.coordinates)
-            result.append(p2.coordinates)
-            result.append(p3.coordinates)
+            result.append(p1)
+            result.append(p2)
+            result.append(p3)
         case false:
             if (p1.x == p2.x) {
                 result.append(contentsOf: pointsForVerticalLine(from: p1, to: p2))
@@ -598,7 +601,7 @@ public struct Triangle: Drawable, Fillable {
             }
         }
         
-        return result.movedTo(origin)
+        return result.movedTo(origin).convertedToCoordinates()
         
     }
 
@@ -644,7 +647,7 @@ public struct Text: Drawable {
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
         
-        var result = [(Int, Int)]()
+        var result = [Point]()
         
         
         var previousGlyphIndex: UInt32 = 0
@@ -683,8 +686,8 @@ public struct Text: Drawable {
                             let mask: UInt8 = UInt8(pow(2.0,Double(power)))
                             if byte & mask > 0 {
                                 //print("Adding point for:\nbyte:\t\(String(byte, radix: 2))\nmask:\t\(String(mask, radix: 2))")
-                                //result.append(Point(x: Int(x)*8+Int(7-power) +  adjustedOffset, y: Int(y)+Int(downOffset)))
-                                result.append((Int(x)*8+Int(7-power) +  adjustedOffset, Int(y)+Int(downOffset)))
+                                result.append(Point(x: Int(x)*8+Int(7-power) +  adjustedOffset,
+                                                    y: Int(y)+Int(downOffset)))
                             }
                             power += 1
                         }
@@ -694,7 +697,7 @@ public struct Text: Drawable {
                 summaryLeftOffset += UInt32(face!.pointee.glyph.pointee.metrics.horiAdvance) >> 6
             }
         }
-        return result.movedTo(origin)
+        return result.movedTo(origin).convertedToCoordinates()
     }
     
     

@@ -61,6 +61,10 @@ The Bresenham's was used for drawing oblique lines. Even though you can draw hor
 
 ```
 
+### Filling
+
+The `Rectangle`, `Square`, `Ellipse`, `Circle`, `Triangle` types can be filled. This functionality is provided by `.fill()` and `.filled()` methods. Only diffrence is that `.filled()` returns a filled copy of object it's been called on.
+
 ### Rendering
 
 The _Drawable_ protocool guarantes that for each object you can generate array of tuplets of integer and integer by calling `.generatePointsForDrawing()`. This effectively is array of points (each having X and Y coordinate). They can be passed to the display library of your choice and therefore be displayed. 
