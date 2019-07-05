@@ -1,4 +1,5 @@
 import CFreeType
+import Foundation
 #if os(macOS) || os(iOS)
 import Darwin
 #elseif os(Linux) || CYGWIN
@@ -608,13 +609,57 @@ public struct Triangle: Drawable, Fillable {
 }
 
 //Text
+fileprivate extension String {
+    func matchingStrings(regex: String) -> [[String]] {
+        guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
+        let nsString = self as NSString
+        let results  = regex.matches(in: self, options: [], range: NSMakeRange(0, nsString.length))
+        return results.map { result in
+            (0..<result.numberOfRanges).map {
+                result.range(at: $0).location != NSNotFound
+                    ? nsString.substring(with: result.range(at: $0))
+                    : ""
+            }
+        }
+    }
+}
 public struct Text: Drawable {
     public var origin: Point
     public var text: String
     private var library: FT_Library?
     private var face: FT_Face?
     
-    public init(_ text: String, font pathToFont: String, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16) {
+    private func getDefaultFontPath() -> String {
+        
+        let defaultPathForRaspbian = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+        guard FileManager.default.fileExists(atPath: defaultPathForRaspbian) else {
+            let task = Process()
+            if #available(OSX 10.13, *) {
+                task.executableURL = URL(fileURLWithPath: "/bin/sh")
+            } else {
+                task.launchPath = "/bin/sh"
+            }
+            task.arguments = ["-c", "fc-list"]
+            let outputPipe = Pipe()
+            task.standardOutput = outputPipe
+            
+            if #available(OSX 10.13, *) {
+                try? task.run()
+            } else {
+                task.launch()
+            }
+            let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(decoding: data, as: UTF8.self)
+            
+            guard let pathToFirstFoundFont = output.components(separatedBy: "\n").first?.matchingStrings(regex: "^(\\/[^\\/ ]*)+\\/([^:]*)?").first?.first else {
+                fatalError("Can not determin default font, please specify one!")
+            }
+            return pathToFirstFoundFont
+        }
+        return defaultPathForRaspbian
+    }
+    
+    public init(_ text: String, font pathToFont: String? = nil, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16) {
         self.origin = origin
         self.text = text
         
@@ -622,8 +667,7 @@ public struct Text: Drawable {
             fatalError("Error during initialization! Error occured during initialization of the freetype library!")
         }
         
-        // "/Library/Fonts/Arial.ttf"
-        guard FT_New_Face(library, pathToFont, 0, &face) == FT_Err_Ok else {
+        guard FT_New_Face(library, pathToFont == nil ? getDefaultFontPath() : pathToFont, 0, &face) == FT_Err_Ok else {
             fatalError("Error during initialization! Please make sure that given path is valid and used file format of font is supported!")
         }
         

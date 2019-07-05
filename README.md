@@ -9,8 +9,6 @@ A swift graphics library intended for my SwiftyOLED library.
 ## TODO
 
 * Write unit tests that makes sense
-* Provide a defualt path to look for fonts
-* Add more triangle initializers (using trigonometry magic to extrapolate data)
 
 ## Documentation
 
