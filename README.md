@@ -54,8 +54,10 @@ The Bresenham's was used for drawing oblique lines. Even though you can draw hor
 
 #### Text
 
+If you do not specify the _pathToFont_ parameter the library will try to use _DejaVuSans_ font which is embeded into Raspbian. If that fails the library will try to get list of all installed fonts from `fontconfig` package and use the first one. If that fails library will raise fatalError.
+
 ```swift
-    Text(_ text: String, font pathToFont: String, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16)
+    Text(_ text: String, font pathToFont: String? = nil, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16)
 
 ```
 
