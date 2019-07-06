@@ -57,6 +57,15 @@ If you do not specify the _pathToFont_ parameter the library will try to use _De
 
 ```
 
+You can change text size by using one of two methods:
+
+```swift
+    public func setPixel(height: UInt32, width: UInt32)
+    public func setChar(height: Int, width: Int, horizontalResolution: UInt32, verticalResolution: UInt32)
+````
+
+These two are just wrappers around `FT_Set_Pixel_Sizes` and `FT_Set_Char_Size` from FreeType 2 library. For more info go to it's documentation.
+
 ### Filling
 
 The `Rectangle`, `Square`, `Ellipse`, `Circle`, `Triangle` types can be filled. This functionality is provided by `.fill()` and `.filled()` methods. Only diffrence is that `.filled()` returns a filled copy of object it's been called on.
