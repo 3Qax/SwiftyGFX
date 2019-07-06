@@ -71,43 +71,40 @@ final class SwiftyGFXTests: XCTestCase {
 //        myDrawing.setPixel(height: 32, width: 32)
 //        myDrawing.generatePointsForDrawing().forEach({ print("\($0.x) \($0.y)") })
 //    }
-    
-    func testTriangleDrawing() {
-        let myTriangle = Triangle(corner1: Point(x: 0, y: 0),
-                                  corner2: Point(x: 15, y: 0),
-                                  corner3: Point(x: 0, y: 15))
-                            .filled()
-        
-        myTriangle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
-    }
-    
-    func testFilledTriangleDrawing() {
-        let myTriangle = Triangle(corner1: Point(x: 0, y: 0),
-                                  corner2: Point(x: 15, y: 0),
-                                  corner3: Point(x: 0, y: 15))
-        
-        myTriangle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
-    }
-    
-    func testCircleDrawing() {
-        let myCircle = Circle(radius: 5)
-        
-        myCircle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
-        
-    }
-    
-    func testFilledDrawing() {
-        let myCircle = Circle(radius: 5).filled()
-        
-        myCircle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
-        
-    }
+//
+//    func testTriangleDrawing() {
+//        let myTriangle = Triangle(corner1: Point(x: 0, y: 0),
+//                                  corner2: Point(x: 15, y: 0),
+//                                  corner3: Point(x: 0, y: 15))
+//                            .filled()
+//
+//        myTriangle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
+//    }
+//
+//    func testFilledTriangleDrawing() {
+//        let myTriangle = Triangle(corner1: Point(x: 0, y: 0),
+//                                  corner2: Point(x: 15, y: 0),
+//                                  corner3: Point(x: 0, y: 15))
+//
+//        myTriangle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
+//    }
+//
+//    func testCircleDrawing() {
+//        let myCircle = Circle(radius: 5)
+//
+//        myCircle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
+//
+//    }
+//
+//    func testFilledDrawing() {
+//        let myCircle = Circle(radius: 5).filled()
+//
+//        myCircle.generatePointsForDrawing().forEach({ print("\($0.0) \($0.1)") })
+//
+//    }
     
     static var allTests = [
-        ("testTriangleDrawing", testTriangleDrawing),
-        ("testFilledTriangleDrawing", testFilledTriangleDrawing),
-        ("testCircleDrawing", testCircleDrawing),
-        ("testFilledDrawing", testFilledDrawing),
+        //("testTriangleDrawing", testTriangleDrawing),
     ]
 }
 

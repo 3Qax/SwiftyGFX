@@ -135,29 +135,18 @@ public struct HorizontalLine: Drawable {
     public var origin: Point
     public var endPoint: Point
     
-    //This initializer fails if two point are can not be connected using vertical line
-    init?(from origin: Point, to endPoint: Point) {
-        
-        guard origin.y == endPoint.y else {
-            print("Initializer failed because two point are not on horizontal line")
-            return nil;
-        }
-        
+    init(from origin: Point, to endPoint: Point) {
         self.origin = origin
         self.endPoint = endPoint
     }
     
-    init?(from origin: Point, lenght: Int) {
-        guard lenght > 0 else {
-            print("Initializer failed due to lenght of the line being smaller than or equal zero!")
-            return nil
-        }
+    init(from origin: Point, lenght: UInt) {
         self.origin = origin
-        self.endPoint = Point(x: origin.x+lenght, y: origin.y)
+        self.endPoint = Point(x: origin.x+Int(lenght), y: origin.y)
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        return pointsForHorizontalLine(from: origin, to: endPoint).convertedToCoordinates()
+        return pointsForHorizontalLine(from: origin, to: Point(x: endPoint.x, y: origin.y)).convertedToCoordinates()
     }
     
 }
@@ -166,29 +155,18 @@ public struct VerticalLine: Drawable {
     public var origin: Point
     public var endPoint: Point
     
-    //This initializer fails if two point are can not be connected using vertical line
-    init?(from origin: Point, to endPoint: Point) {
-        
-        guard origin.x == endPoint.x else {
-            print("Initializer failed because two point are not on vertical line")
-            return nil;
-        }
-        
+    init(from origin: Point, to endPoint: Point) {
         self.origin = origin
         self.endPoint = endPoint
     }
     
-    init?(from origin: Point, lenght: Int) {
-        guard lenght > 0 else {
-            print("Initializer failed due to lenght of the line being smaller than or equal zero!")
-            return nil
-        }
+    init(from origin: Point, lenght: UInt) {
         self.origin = origin
-        self.endPoint = Point(x: origin.x, y: origin.y+lenght)
+        self.endPoint = Point(x: origin.x, y: origin.y+Int(lenght))
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        return pointsForVerticalLine(from: origin, to: endPoint).convertedToCoordinates()
+        return pointsForVerticalLine(from: origin, to: Point(x: origin.x, y: endPoint.y)).convertedToCoordinates()
     }
     
 }
@@ -198,22 +176,10 @@ public struct Rectangle: Drawable, Fillable {
     
     public var origin: Point
     public private(set) var isFilled = false
-    public var width: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("Width have to be greater than 0!")
-            }
-        }
-    }
-    public var height: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("Height have to be greater than 0!")
-            }
-        }
-    }
+    public var width: UInt
+    public var height: UInt
     
-    init(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
         self.origin = origin
         self.height = height
         self.width = width
@@ -234,14 +200,14 @@ public struct Rectangle: Drawable, Fillable {
         
         switch isFilled {
         case true:
-            for i in 0...height-1 {
-                    result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: width-1, y: i)))
+            for i in 0...Int(height)-1 {
+                    result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: Int(width)-1, y: i)))
             }
         case false:
-            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: width, y: 0)))
-            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: width, y: 0), to: Point(x: width, y: height)))
-            result.append(contentsOf: pointsForVerticalLine(from: Point(x: width, y: height), to: Point(x: 0, y: width)))
-            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: Int(width), y: 0)))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: Int(width), y: 0), to: Point(x: Int(width), y: Int(height))))
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: Int(width), y: Int(height)), to: Point(x: 0, y: Int(width))))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: Int(width)), to: Point(x: 0, y: 0)))
         }
         
         return result.movedTo(origin).convertedToCoordinates()
@@ -252,26 +218,12 @@ public struct Square: Drawable, Fillable {
     
     public var origin: Point
     public private(set) var isFilled = false
-    public var width: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("Width have to be greater than 0!")
-            }
-        }
-    }
-    public var height: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("Height have to be greater than 0!")
-            }
-        }
-    }
+    public var sideSize: UInt
     
     
-    init(at origin: Point = Point(x: 0, y: 0), sideSize a: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), sideSize a: UInt) {
         self.origin = origin
-        self.height = a
-        self.width = a
+        self.sideSize = a
     }
     
     mutating public func fill() {
@@ -289,14 +241,14 @@ public struct Square: Drawable, Fillable {
         
         switch isFilled {
         case true:
-            for i in 0...height-1 {
-                result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: width-1, y: i)))
+            for i in 0...Int(sideSize)-1 {
+                result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: Int(sideSize)-1, y: i)))
             }
         case false:
-            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: width, y: 0)))
-            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: width, y: 0), to: Point(x: width, y: height)))
-            result.append(contentsOf: pointsForVerticalLine(from: Point(x: width, y: height), to: Point(x: 0, y: width)))
-            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: width), to: Point(x: 0, y: 0)))
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: Int(sideSize), y: 0)))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: Int(sideSize), y: 0), to: Point(x: Int(sideSize), y: Int(sideSize))))
+            result.append(contentsOf: pointsForVerticalLine(from: Point(x: Int(sideSize), y: Int(sideSize)), to: Point(x: 0, y: Int(sideSize))))
+            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: Int(sideSize)), to: Point(x: 0, y: 0)))
         }
         
         return result.movedTo(origin).convertedToCoordinates()
@@ -309,28 +261,16 @@ public struct Ellipse: Drawable, Fillable {
     
     public var origin: Point
     public private(set) var isFilled = false
-    public var yRadius: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("Y radius can not be smaller then or equal to zero")
-            }
-        }
-    }
-    public var xRadius: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("X radius can not be smaller then or equal to zero")
-            }
-        }
-    }
+    public var yRadius: UInt
+    public var xRadius: UInt
     
-    init(at origin: Point = Point(x: 0, y: 0), yRadius: Int, xRadius: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), yRadius: UInt, xRadius: UInt) {
         self.origin = origin
         self.yRadius = yRadius
         self.xRadius = xRadius
     }
 
-    init(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
         self.origin = origin
         self.yRadius = height/2
         self.xRadius = width/2
@@ -353,19 +293,19 @@ public struct Ellipse: Drawable, Fillable {
         switch isFilled {
         case true:
             
-            for x in stride(from: -xRadius, through: xRadius, by: 1) {
-                result.append(Point(x: x + xRadius, y: yRadius))
+            for x in stride(from: -Int(xRadius), through: Int(xRadius), by: 1) {
+                result.append(Point(x: x + Int(xRadius), y: Int(yRadius)))
             }
             
-            var x0 = xRadius
+            var x0 = Int(xRadius)
             var dx = 0
             
             // now do both halves at the same time, away from the diameter
-            for y in stride(from: 1, through: yRadius, by: 1) {
+            for y in stride(from: 1, through: Int(yRadius), by: 1) {
                 var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
                 
                 while x1 > 0 {
-                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    if x1*x1*Int(yRadius)*Int(yRadius) + y*y*Int(xRadius)*Int(xRadius) <= Int(yRadius)*Int(yRadius)*Int(xRadius)*Int(xRadius) { break }
                     x1 -= 1
                 }
                 
@@ -373,35 +313,35 @@ public struct Ellipse: Drawable, Fillable {
                 x0 = x1;
                 
                 for x in stride(from: -x0, through: x0, by: 1) {
-                    result.append(Point(x: x + xRadius, y: -y + yRadius))
-                    result.append(Point(x: x + xRadius, y: y + yRadius))
+                    result.append(Point(x: x + Int(xRadius), y: -y + Int(yRadius)))
+                    result.append(Point(x: x + Int(xRadius), y: y + Int(yRadius)))
                 }
                 
             }
         case false:
             
-            result.append(Point(x: 0, y: yRadius))
-            result.append(Point(x: 2 * xRadius, y: yRadius))
+            result.append(Point(x: 0, y: Int(yRadius)))
+            result.append(Point(x: 2 * Int(xRadius), y: Int(yRadius)))
             
-            var x0 = xRadius
+            var x0 = Int(xRadius)
             var dx = 0
             
             // now do both halves at the same time, away from the diameter
-            for y in stride(from: 1, through: yRadius, by: 1) {
+            for y in stride(from: 1, through: Int(yRadius), by: 1) {
                 var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
                 
                 while x1 > 0 {
-                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    if x1*x1*Int(yRadius)*Int(yRadius) + y*y*Int(xRadius)*Int(xRadius) <= Int(yRadius)*Int(yRadius)*Int(xRadius)*Int(xRadius) { break }
                     x1 -= 1
                 }
                 
                 dx = x0 - x1;  // current approximation of the slope
                 x0 = x1;
                 
-                result.append(Point(x: -x0 + xRadius, y: y + yRadius))
-                result.append(Point(x: -x0 + xRadius, y: -y + yRadius))
-                result.append(Point(x: x0 + xRadius, y: y + yRadius))
-                result.append(Point(x: x0 + xRadius, y: -y + yRadius))
+                result.append(Point(x: -x0 + Int(xRadius), y: y + Int(yRadius)))
+                result.append(Point(x: -x0 + Int(xRadius), y: -y + Int(yRadius)))
+                result.append(Point(x: x0 + Int(xRadius), y: y + Int(yRadius)))
+                result.append(Point(x: x0 + Int(xRadius), y: -y + Int(yRadius)))
             }
         }
         return result.movedTo(origin).convertedToCoordinates()
@@ -412,31 +352,16 @@ public struct Circle: Drawable, Fillable {
     
     public var origin: Point
     public private(set) var isFilled = false
-    public var yRadius: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("Y radius can not be smaller then or equal to zero")
-            }
-        }
-    }
-    public var xRadius: Int {
-        willSet {
-            guard newValue > 0 else {
-                fatalError("X radius can not be smaller then or equal to zero")
-            }
-        }
+    public var radius: UInt
+    
+    init(at origin: Point = Point(x: 0, y: 0), radius: UInt) {
+        self.origin = origin
+        self.radius = radius
     }
     
-    init(at origin: Point = Point(x: 0, y: 0), radius: Int) {
+    init(at origin: Point = Point(x: 0, y: 0), width: UInt) {
         self.origin = origin
-        self.yRadius = radius
-        self.xRadius = radius
-    }
-    
-    init(at origin: Point = Point(x: 0, y: 0), width: Int) {
-        self.origin = origin
-        self.yRadius = width/2
-        self.xRadius = width/2
+        self.radius = width/2
     }
     
     mutating public func fill() {
@@ -456,19 +381,19 @@ public struct Circle: Drawable, Fillable {
         switch isFilled {
         case true:
             
-            for x in stride(from: -xRadius, through: xRadius, by: 1) {
-                result.append(Point(x: x + xRadius, y: yRadius))
+            for x in stride(from: -Int(radius), through: Int(radius), by: 1) {
+                result.append(Point(x: x + Int(radius), y: Int(radius)))
             }
             
-            var x0 = xRadius
+            var x0 = Int(radius)
             var dx = 0
             
             // now do both halves at the same time, away from the diameter
-            for y in stride(from: 1, through: yRadius, by: 1) {
+            for y in stride(from: 1, through: Int(radius), by: 1) {
                 var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
                 
                 while x1 > 0 {
-                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    if x1*x1*Int(radius)*Int(radius) + y*y*Int(radius)*Int(radius) <= Int(radius)*Int(radius)*Int(radius)*Int(radius) { break }
                     x1 -= 1
                 }
                 
@@ -476,35 +401,35 @@ public struct Circle: Drawable, Fillable {
                 x0 = x1;
                 
                 for x in stride(from: -x0, through: x0, by: 1) {
-                    result.append(Point(x: x + xRadius, y: -y + yRadius))
-                    result.append(Point(x: x + xRadius, y: y + yRadius))
+                    result.append(Point(x: x + Int(radius), y: -y + Int(radius)))
+                    result.append(Point(x: x + Int(radius), y: y + Int(radius)))
                 }
                 
             }
         case false:
             
-            result.append(Point(x: 0, y: yRadius))
-            result.append(Point(x: 2 * xRadius, y: yRadius))
+            result.append(Point(x: 0, y: Int(radius)))
+            result.append(Point(x: 2 * Int(radius), y: Int(radius)))
             
-            var x0 = xRadius
+            var x0 = Int(radius)
             var dx = 0
             
             // now do both halves at the same time, away from the diameter
-            for y in stride(from: 1, through: yRadius, by: 1) {
+            for y in stride(from: 1, through: Int(radius), by: 1) {
                 var x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
                 
                 while x1 > 0 {
-                    if x1*x1*yRadius*yRadius + y*y*xRadius*xRadius <= yRadius*yRadius*xRadius*xRadius { break }
+                    if x1*x1*Int(radius)*Int(radius) + y*y*Int(radius)*Int(radius) <= Int(radius)*Int(radius)*Int(radius)*Int(radius) { break }
                     x1 -= 1
                 }
                 
                 dx = x0 - x1;  // current approximation of the slope
                 x0 = x1;
                 
-                result.append(Point(x: -x0 + xRadius,y: y + yRadius))
-                result.append(Point(x: -x0 + xRadius,y: -y + yRadius))
-                result.append(Point(x: x0 + xRadius,y: y + yRadius))
-                result.append(Point(x: x0 + xRadius,y: -y + yRadius))
+                result.append(Point(x: -x0 + Int(radius),y: y + Int(radius)))
+                result.append(Point(x: -x0 + Int(radius),y: -y + Int(radius)))
+                result.append(Point(x: x0 + Int(radius),y: y + Int(radius)))
+                result.append(Point(x: x0 + Int(radius),y: -y + Int(radius)))
             }
         }
         return result.movedTo(origin).convertedToCoordinates()

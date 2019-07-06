@@ -1,14 +1,6 @@
 # SwiftyGFX
 
-A swift graphics library intended for my SwiftyOLED library.
-
-## Key features
-
-* Ability to render any font provided in _.ttf_ or _.otf_
-
-## TODO
-
-* Write unit tests that makes sense
+A swift graphics library intended for my SwiftyOLED library. Feel free to design API for it when creating display libraries using swift on arm.
 
 ## Documentation
 
@@ -26,24 +18,28 @@ The Bresenham's was used for drawing oblique lines. Even though you can draw hor
 
 ```swift
     ObliqueLine(from origin: Point, to endPoint: Point)
-    HorizontalLine(from origin: Point, lenght: Int)
-    VerticalLine(from origin: Point, lenght: Int)
+    HorizontalLine(from origin: Point, to endPoint: Point)
+    HorizontalLine(from origin: Point, lenght: UInt)
+    VerticalLine(from origin: Point, to endPoint: Point)
+    VerticalLine(from origin: Point, lenght: UInt)
 ```
+
+If you pass incorret values to `HorizontalLine` or `VerticalLine`, that is points with diffrent y coordinates or x coordinates accordingly, library will back up to using y or x of origin.
 
 #### Rectangles
 
 ```swift
-    Rectangle(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int)
-    Square(at origin: Point = Point(x: 0, y: 0), sideSize a: Int)
+    Rectangle(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt)
+    Square(at origin: Point = Point(x: 0, y: 0), sideSize a: UInt)
 ```
 
 #### Ellipses
 
 ```swift
-    Ellipse(at origin: Point = Point(x: 0, y: 0), yRadius: Int, xRadius: Int)
-    Ellipse(at origin: Point = Point(x: 0, y: 0), height: Int, width: Int)
-    Circle(at origin: Point = Point(x: 0, y: 0), radius: Int)
-    Circle(at origin: Point = Point(x: 0, y: 0), width: Int)
+    Ellipse(at origin: Point = Point(x: 0, y: 0), yRadius: UInt, xRadius: UInt)
+    Ellipse(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt)
+    Circle(at origin: Point = Point(x: 0, y: 0), radius: UInt)
+    Circle(at origin: Point = Point(x: 0, y: 0), width: UInt)
 ```
 
 #### Triangles
