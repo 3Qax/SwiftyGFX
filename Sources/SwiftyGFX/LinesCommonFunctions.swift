@@ -6,7 +6,7 @@ import Glibc
 #endif
 
 //Using Bresenham's line algorithm
-internal func pointsForLine(from p1: Point, to p2: Point) -> [Point] {
+internal func pointsForObliqueLine(from p1: Point, to p2: Point) -> [Point] {
     
     guard p1.x != p2.x && p1.y != p2.y else { return [p1] }
     

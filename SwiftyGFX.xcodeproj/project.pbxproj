@@ -30,7 +30,7 @@
 		1971A4F022FCCA2B00C5853A /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1971A4EF22FCCA2B00C5853A /* Point.swift */; };
 		1971A4F322FCCB7E00C5853A /* Drawable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1971A4F222FCCB7E00C5853A /* Drawable.swift */; };
 		1971A4F522FCCB9600C5853A /* Fillable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1971A4F422FCCB9600C5853A /* Fillable.swift */; };
-		1971A4F722FCCD8700C5853A /* Lines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1971A4F622FCCD8700C5853A /* Lines.swift */; };
+		1971A4F722FCCD8700C5853A /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1971A4F622FCCD8700C5853A /* Line.swift */; };
 		OBJ_26 /* LinesCommonFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* LinesCommonFunctions.swift */; };
 		OBJ_33 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_44 /* SwiftyGFXTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* SwiftyGFXTests.swift */; };
@@ -65,7 +65,7 @@
 		1971A4EF22FCCA2B00C5853A /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
 		1971A4F222FCCB7E00C5853A /* Drawable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drawable.swift; sourceTree = "<group>"; };
 		1971A4F422FCCB9600C5853A /* Fillable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fillable.swift; sourceTree = "<group>"; };
-		1971A4F622FCCD8700C5853A /* Lines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lines.swift; sourceTree = "<group>"; };
+		1971A4F622FCCD8700C5853A /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		OBJ_10 /* shim.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shim.h; sourceTree = "<group>"; };
 		OBJ_12 /* LinesCommonFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinesCommonFunctions.swift; sourceTree = "<group>"; };
 		OBJ_15 /* SwiftyGFXTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyGFXTests.swift; sourceTree = "<group>"; };
@@ -105,7 +105,7 @@
 				1971A4E922FCC7A700C5853A /* Circle.swift */,
 				1971A4EB22FCC80100C5853A /* Triangle.swift */,
 				1971A4ED22FCC83C00C5853A /* Text.swift */,
-				1971A4F622FCCD8700C5853A /* Lines.swift */,
+				1971A4F622FCCD8700C5853A /* Line.swift */,
 			);
 			path = Shapes;
 			sourceTree = "<group>";
@@ -282,7 +282,7 @@
 				1971A4EC22FCC80100C5853A /* Triangle.swift in Sources */,
 				1971A4F322FCCB7E00C5853A /* Drawable.swift in Sources */,
 				1971A4E822FCC77100C5853A /* Ellipse.swift in Sources */,
-				1971A4F722FCCD8700C5853A /* Lines.swift in Sources */,
+				1971A4F722FCCD8700C5853A /* Line.swift in Sources */,
 				1971A4F522FCCB9600C5853A /* Fillable.swift in Sources */,
 				1971A4E422FCC6C400C5853A /* Rectangle.swift in Sources */,
 			);

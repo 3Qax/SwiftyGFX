@@ -47,12 +47,12 @@ public struct Triangle: Drawable, Fillable {
             for (start, end) in linesPoints {
                 let Δy = end.y - start.y
                 if Δy < 0 {
-                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForLine(from: start, to: end).dropFirst())
+                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForObliqueLine(from: start, to: end).dropFirst())
                         .forEach({
                             buff_x0.append($0.x)
                         })
                 } else if Δy > 0 {
-                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForLine(from: start, to: end).dropFirst())
+                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForObliqueLine(from: start, to: end).dropFirst())
                         .forEach({
                             buff_x1.append($0.x)
                         })
@@ -76,7 +76,7 @@ public struct Triangle: Drawable, Fillable {
             } else if (p1.y == p2.y) {
                 result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p2))
             } else {
-                result.append(contentsOf: pointsForLine(from: p1, to: p2))
+                result.append(contentsOf: pointsForObliqueLine(from: p1, to: p2))
             }
             
             if (p2.x == p3.x) {
@@ -84,7 +84,7 @@ public struct Triangle: Drawable, Fillable {
             } else if (p2.y == p3.y) {
                 result.append(contentsOf: pointsForHorizontalLine(from: p2, to: p3))
             } else {
-                result.append(contentsOf: pointsForLine(from: p2, to: p3))
+                result.append(contentsOf: pointsForObliqueLine(from: p2, to: p3))
             }
             
             if (p1.x == p3.x) {
@@ -92,7 +92,7 @@ public struct Triangle: Drawable, Fillable {
             } else if (p1.y == p3.y) {
                 result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p3))
             } else {
-                result.append(contentsOf: pointsForLine(from: p1, to: p3))
+                result.append(contentsOf: pointsForObliqueLine(from: p1, to: p3))
             }
         }
         
