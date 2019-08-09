@@ -30,8 +30,21 @@ final class SwiftyGFXTests: XCTestCase {
         
     }
     
+    func testLineEquitability() {
+        let p1 = Point(x: Int.random(in: Int.min...Int.max), y: Int.random(in: Int.min...Int.max))
+        let p2 = Point(x: Int.random(in: Int.min...Int.max), y: Int.random(in: Int.min...Int.max))
+        
+        let firstLine = Line(from: p1, to: p2)
+        let reversedFirstLine = Line(from: p2, to: p1)
+        XCTAssert(firstLine==reversedFirstLine)
+        
+        let duplicatedFirstLine = Line(from: p1, to: p2)
+        XCTAssert(firstLine==duplicatedFirstLine)
+    }
+    
     static var allTests = [
         ("testLineTypeDetecting", testLineTypeDetecting),
+        ("testLineEquitability", testLineEquitability),
     ]
 }
 

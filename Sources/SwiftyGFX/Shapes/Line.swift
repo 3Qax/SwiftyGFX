@@ -62,3 +62,10 @@ public struct Line: Drawable {
         }
     }
 }
+
+extension Line: Equatable {
+    public static func ==(lhs: Line, rhs: Line) -> Bool {
+        return lhs.origin == rhs.origin && lhs.endPoint == rhs.endPoint
+               || lhs.origin == rhs.endPoint && lhs.endPoint == rhs.origin
+    }
+}
