@@ -90,10 +90,8 @@ public struct Text: Drawable {
         }
     }
     
-    public func generatePointsForDrawing() -> [(Int, Int)] {
-        
+    public func rendered() -> [(Int, Int)] {
         var result = [Point]()
-        
         
         var previousGlyphIndex: UInt32 = 0
         var summaryLeftOffset: UInt32 = 0

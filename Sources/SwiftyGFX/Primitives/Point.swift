@@ -8,7 +8,6 @@
 import Foundation
 
 public struct Point: Equatable, CustomStringConvertible {
-    
     public var x: Int
     public var y: Int
     

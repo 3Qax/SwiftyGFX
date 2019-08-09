@@ -36,15 +36,15 @@ public struct Ellipse: Drawable, Fillable {
         return result
     }
     
-    public func generatePointsForDrawing() -> [(Int, Int)] {
+    public func rendered() -> [(Int, Int)] {
         
-        var result = [Point]()
+        var result = [(Int, Int)]()
         
         switch isFilled {
         case true:
             
-            for x in stride(from: -Int(xRadius), through: Int(xRadius), by: 1) {
-                result.append(Point(x: x + Int(xRadius), y: Int(yRadius)))
+            for x in stride(from: 0, through: 2*Int(xRadius), by: 1) {
+                result.append(Point(x: origin.x + x, y: origin.y+Int(yRadius)).coordinates)
             }
             
             var x0 = Int(xRadius)
@@ -62,16 +62,24 @@ public struct Ellipse: Drawable, Fillable {
                 dx = x0 - x1;  // current approximation of the slope
                 x0 = x1;
                 
-                for x in stride(from: -x0, through: x0, by: 1) {
-                    result.append(Point(x: x + Int(xRadius), y: -y + Int(yRadius)))
-                    result.append(Point(x: x + Int(xRadius), y: y + Int(yRadius)))
+                for x in stride(from: 0, through: 2 * x0, by: 1) {
+                    result.append(Point(x: origin.x + x,
+                                        y: origin.y - y)
+                                    .coordinates)
+                    result.append(Point(x: origin.x + x,
+                                        y: origin.y + y)
+                                    .coordinates)
                 }
                 
             }
         case false:
             
-            result.append(Point(x: 0, y: Int(yRadius)))
-            result.append(Point(x: 2 * Int(xRadius), y: Int(yRadius)))
+            result.append(Point(x: origin.x,
+                                y: origin.y + Int(yRadius))
+                            .coordinates)
+            result.append(Point(x: origin.x + 2 * Int(xRadius),
+                                y: origin.y + Int(yRadius))
+                            .coordinates)
             
             var x0 = Int(xRadius)
             var dx = 0
@@ -88,13 +96,21 @@ public struct Ellipse: Drawable, Fillable {
                 dx = x0 - x1;  // current approximation of the slope
                 x0 = x1;
                 
-                result.append(Point(x: -x0 + Int(xRadius), y: y + Int(yRadius)))
-                result.append(Point(x: -x0 + Int(xRadius), y: -y + Int(yRadius)))
-                result.append(Point(x: x0 + Int(xRadius), y: y + Int(yRadius)))
-                result.append(Point(x: x0 + Int(xRadius), y: -y + Int(yRadius)))
+                result.append(Point(x: origin.x - x0 + Int(xRadius),
+                                    y: origin.y + y + Int(yRadius))
+                                .coordinates)
+                result.append(Point(x: origin.x - x0 + Int(xRadius),
+                                    y: origin.y - y + Int(yRadius))
+                                .coordinates)
+                result.append(Point(x: origin.x + x0 + Int(xRadius),
+                                    y: origin.y + y + Int(yRadius))
+                                .coordinates)
+                result.append(Point(x: origin.x + x0 + Int(xRadius),
+                                    y: origin.y - y + Int(yRadius))
+                                .coordinates)
             }
         }
-        return result.movedTo(origin).convertedToCoordinates()
+        return result
     }
     
 }

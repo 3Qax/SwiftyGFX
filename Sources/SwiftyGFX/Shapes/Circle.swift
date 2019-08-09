@@ -33,7 +33,7 @@ public struct Circle: Drawable, Fillable {
         return result
     }
     
-    public func generatePointsForDrawing() -> [(Int, Int)] {
+    public func rendered() -> [(Int, Int)] {
         
         var result = [Point]()
         

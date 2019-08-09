@@ -32,9 +32,9 @@ public struct Triangle: Drawable, Fillable {
         return result
     }
     
-    public func generatePointsForDrawing() -> [(Int, Int)] {
+    public func rendered() -> [(Int, Int)] {
         
-        var result = [Point]()
+        var result = [(Int, Int)]()
         
         switch isFilled {
         case true:
@@ -47,14 +47,18 @@ public struct Triangle: Drawable, Fillable {
             for (start, end) in linesPoints {
                 let Δy = end.y - start.y
                 if Δy < 0 {
-                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForObliqueLine(from: start, to: end).dropFirst())
+                    Line(from: start, to: end)
+                        .rendered()
+                        .dropFirst()
                         .forEach({
-                            buff_x0.append($0.x)
+                            buff_x0.append($0.0)
                         })
                 } else if Δy > 0 {
-                    (start.x == end.x ? pointsForVerticalLine(from: start, to: end).dropFirst() : pointsForObliqueLine(from: start, to: end).dropFirst())
+                    Line(from: start, to: end)
+                        .rendered()
+                        .dropFirst()
                         .forEach({
-                            buff_x1.append($0.x)
+                            buff_x1.append($0.0)
                         })
                 } else { // Δy == 0
                     buff_x0.append(start.x)
@@ -63,40 +67,22 @@ public struct Triangle: Drawable, Fillable {
             }
             
             for y in 0..<boundingBoxHeight {
-                result.append(contentsOf: pointsForHorizontalLine(from: Point(x: buff_x0[y], y: y),
-                                                                  to: Point(x: buff_x1[y], y: y)))
+                result.append(contentsOf: Line(from: Point(x: buff_x0[y], y: y),
+                                               to: Point(x: buff_x1[y], y: y))
+                                            .rendered())
             }
             
-            result.append(p1)
-            result.append(p2)
-            result.append(p3)
+            // TODO: check if it's necessary
+//            result.append(p1)
+//            result.append(p2)
+//            result.append(p3)
         case false:
-            if (p1.x == p2.x) {
-                result.append(contentsOf: pointsForVerticalLine(from: p1, to: p2))
-            } else if (p1.y == p2.y) {
-                result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p2))
-            } else {
-                result.append(contentsOf: pointsForObliqueLine(from: p1, to: p2))
-            }
-            
-            if (p2.x == p3.x) {
-                result.append(contentsOf: pointsForVerticalLine(from: p2, to: p3))
-            } else if (p2.y == p3.y) {
-                result.append(contentsOf: pointsForHorizontalLine(from: p2, to: p3))
-            } else {
-                result.append(contentsOf: pointsForObliqueLine(from: p2, to: p3))
-            }
-            
-            if (p1.x == p3.x) {
-                result.append(contentsOf: pointsForVerticalLine(from: p1, to: p3))
-            } else if (p1.y == p3.y) {
-                result.append(contentsOf: pointsForHorizontalLine(from: p1, to: p3))
-            } else {
-                result.append(contentsOf: pointsForObliqueLine(from: p1, to: p3))
-            }
+            result.append(contentsOf: Line(from: p1, to: p2).rendered())
+            result.append(contentsOf: Line(from: p2, to: p3).rendered())
+            result.append(contentsOf: Line(from: p3, to: p1).rendered())
         }
         
-        return result.movedTo(origin).convertedToCoordinates()
+        return result
         
     }
     

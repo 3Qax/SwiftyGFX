@@ -9,5 +9,5 @@ import Foundation
 
 public protocol Drawable {
     var origin: Point { get set }
-    func generatePointsForDrawing() -> [(Int, Int)]
+    func rendered() -> [(Int, Int)]
 }

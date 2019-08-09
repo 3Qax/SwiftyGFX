@@ -8,11 +8,10 @@
 import Foundation
 
 public struct Rectangle: Drawable, Fillable {
-    
     public var origin: Point
-    public private(set) var isFilled = false
     public var width: UInt
     public var height: UInt
+    public private(set) var isFilled = false
     
     init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
         self.origin = origin
@@ -30,22 +29,36 @@ public struct Rectangle: Drawable, Fillable {
         return self
     }
     
-    public func generatePointsForDrawing() -> [(Int, Int)] {
-        var result = [Point]()
+    public func rendered() -> [(Int, Int)] {
+        var result = [(Int, Int)]()
         
         switch isFilled {
         case true:
             for i in 0...Int(height)-1 {
-                result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: i), to: Point(x: Int(width)-1, y: i)))
+                result.append(contentsOf: Line(from: Point(x: 0, y: i),
+                                               to: Point(x: Int(width)-1, y: i))
+                                            .rendered())
             }
         case false:
-            result.append(contentsOf: pointsForVerticalLine(from: Point(x: 0, y: 0), to: Point(x: Int(width), y: 0)))
-            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: Int(width), y: 0), to: Point(x: Int(width), y: Int(height))))
-            result.append(contentsOf: pointsForVerticalLine(from: Point(x: Int(width), y: Int(height)), to: Point(x: 0, y: Int(width))))
-            result.append(contentsOf: pointsForHorizontalLine(from: Point(x: 0, y: Int(width)), to: Point(x: 0, y: 0)))
+            // top
+            result.append(contentsOf: Line(from: origin,
+                                           to: Point(x: origin.x+Int(width), y: origin.y))
+                                        .rendered())
+            // right
+            result.append(contentsOf: Line(from: Point(x: origin.x+Int(width), y: origin.y),
+                                           to: Point(x: origin.x+Int(width), y: origin.y+Int(height)))
+                                        .rendered())
+            // bottom
+            result.append(contentsOf: Line(from: Point(x: origin.x+Int(width), y: origin.y+Int(height)),
+                                           to: Point(x: origin.x, y: origin.y+Int(height)))
+                                        .rendered())
+            // left
+            result.append(contentsOf: Line(from: Point(x: origin.x, y: origin.y+Int(height)),
+                                           to: origin)
+                                        .rendered())
         }
         
-        return result.movedTo(origin).convertedToCoordinates()
+        return result
     }
     
 }
