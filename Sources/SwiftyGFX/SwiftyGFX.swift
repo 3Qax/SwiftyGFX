@@ -584,7 +584,7 @@ public struct Text: Drawable {
         return defaultPathForRaspbian
     }
     
-    public init(_ text: String, font pathToFont: String? = nil, at origin: Point = Point(x: 0, y: 0), pixelHeight: UInt32 = 16, pixelWidth: UInt32 = 16) {
+    public init(_ text: String, font pathToFont: String? = nil, at origin: Point = Point(x: 0, y: 0), pixelWidth: UInt32 = 16, pixelHeight: UInt32 = 16) {
         self.origin = origin
         self.text = text
         
@@ -596,20 +596,20 @@ public struct Text: Drawable {
             fatalError("Error during initialization! Please make sure that given path is valid and used file format of font is supported!")
         }
         
-        guard FT_Set_Pixel_Sizes(&face!.pointee, pixelHeight, pixelWidth) == FT_Err_Ok else {
+        guard FT_Set_Pixel_Sizes(&face!.pointee, pixelWidth, pixelHeight) == FT_Err_Ok else {
             fatalError("Error during initialization! Can not set char pixel for a choosen face!")
         }
         
     }
     
-    public func setChar(height: Int, width: Int, horizontalResolution: UInt32, verticalResolution: UInt32) {
-        guard FT_Set_Char_Size(&face!.pointee, height, width, horizontalResolution, verticalResolution) == FT_Err_Ok else {
+    public func setChar(width: Int, height: Int, horizontalResolution: UInt32, verticalResolution: UInt32) {
+        guard FT_Set_Char_Size(&face!.pointee, width, height, horizontalResolution, verticalResolution) == FT_Err_Ok else {
             fatalError("Can not set char size!")
         }
     }
     
-    public func setPixel(height: UInt32, width: UInt32) {
-        guard FT_Set_Pixel_Sizes(&face!.pointee, height, width) == FT_Err_Ok else {
+    public func setPixel(width: UInt32, height: UInt32) {
+        guard FT_Set_Pixel_Sizes(&face!.pointee, width, height) == FT_Err_Ok else {
             fatalError("Can not set pixel size!")
         }
     }
