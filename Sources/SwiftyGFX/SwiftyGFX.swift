@@ -120,7 +120,7 @@ public struct ObliqueLine: Drawable {
     public var origin: Point
     public var endPoint: Point
     
-    init(from origin: Point, to endPoint: Point) {
+    public init(from origin: Point, to endPoint: Point) {
         self.endPoint = endPoint
         self.origin = origin
     }
@@ -135,12 +135,12 @@ public struct HorizontalLine: Drawable {
     public var origin: Point
     public var endPoint: Point
     
-    init(from origin: Point, to endPoint: Point) {
+    public init(from origin: Point, to endPoint: Point) {
         self.origin = origin
         self.endPoint = endPoint
     }
     
-    init(from origin: Point, lenght: UInt) {
+    public init(from origin: Point, lenght: UInt) {
         self.origin = origin
         self.endPoint = Point(x: origin.x+Int(lenght), y: origin.y)
     }
@@ -155,12 +155,12 @@ public struct VerticalLine: Drawable {
     public var origin: Point
     public var endPoint: Point
     
-    init(from origin: Point, to endPoint: Point) {
+    public init(from origin: Point, to endPoint: Point) {
         self.origin = origin
         self.endPoint = endPoint
     }
     
-    init(from origin: Point, lenght: UInt) {
+    public init(from origin: Point, lenght: UInt) {
         self.origin = origin
         self.endPoint = Point(x: origin.x, y: origin.y+Int(lenght))
     }
@@ -179,7 +179,7 @@ public struct Rectangle: Drawable, Fillable {
     public var width: UInt
     public var height: UInt
     
-    init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
+    public init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
         self.origin = origin
         self.height = height
         self.width = width
@@ -221,7 +221,7 @@ public struct Square: Drawable, Fillable {
     public var sideSize: UInt
     
     
-    init(at origin: Point = Point(x: 0, y: 0), sideSize a: UInt) {
+    public init(at origin: Point = Point(x: 0, y: 0), sideSize a: UInt) {
         self.origin = origin
         self.sideSize = a
     }
@@ -264,13 +264,13 @@ public struct Ellipse: Drawable, Fillable {
     public var yRadius: UInt
     public var xRadius: UInt
     
-    init(at origin: Point = Point(x: 0, y: 0), yRadius: UInt, xRadius: UInt) {
+    public init(at origin: Point = Point(x: 0, y: 0), yRadius: UInt, xRadius: UInt) {
         self.origin = origin
         self.yRadius = yRadius
         self.xRadius = xRadius
     }
 
-    init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
+    public init(at origin: Point = Point(x: 0, y: 0), height: UInt, width: UInt) {
         self.origin = origin
         self.yRadius = height/2
         self.xRadius = width/2
@@ -354,12 +354,12 @@ public struct Circle: Drawable, Fillable {
     public private(set) var isFilled = false
     public var radius: UInt
     
-    init(at origin: Point = Point(x: 0, y: 0), radius: UInt) {
+    public init(at origin: Point = Point(x: 0, y: 0), radius: UInt) {
         self.origin = origin
         self.radius = radius
     }
     
-    init(at origin: Point = Point(x: 0, y: 0), width: UInt) {
+    public init(at origin: Point = Point(x: 0, y: 0), width: UInt) {
         self.origin = origin
         self.radius = width/2
     }
@@ -446,7 +446,7 @@ public struct Triangle: Drawable, Fillable {
     public var p3: Point
     public private(set) var isFilled = false
     
-    init(at origin: Point = Point(x: 0, y: 0), corner1: Point, corner2: Point, corner3: Point) {
+    public init(at origin: Point = Point(x: 0, y: 0), corner1: Point, corner2: Point, corner3: Point) {
         self.origin = origin
         self.p1 = corner1
         self.p2 = corner2

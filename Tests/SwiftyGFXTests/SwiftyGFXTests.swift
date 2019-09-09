@@ -103,8 +103,8 @@ final class SwiftyGFXTests: XCTestCase {
 //
 //    }
     
-    static var allTests = [
-        //("testTriangleDrawing", testTriangleDrawing),
-    ]
+//    static var allTests = [
+//        ("testTriangleDrawing", testTriangleDrawing),
+//    ]
 }
 
