@@ -548,41 +548,12 @@ fileprivate extension String {
         }
     }
 }
-public struct Text: Drawable {
+public class Text: Drawable {
     public var origin: Point
     public var text: String
+    
     private var library: FT_Library?
     private var face: FT_Face?
-    
-    private func getDefaultFontPath() -> String {
-        
-        let defaultPathForRaspbian = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-        guard FileManager.default.fileExists(atPath: defaultPathForRaspbian) else {
-            let task = Process()
-            if #available(OSX 10.13, *) {
-                task.executableURL = URL(fileURLWithPath: "/bin/sh")
-            } else {
-                task.launchPath = "/bin/sh"
-            }
-            task.arguments = ["-c", "fc-list"]
-            let outputPipe = Pipe()
-            task.standardOutput = outputPipe
-            
-            if #available(OSX 10.13, *) {
-                try? task.run()
-            } else {
-                task.launch()
-            }
-            let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-            let output = String(decoding: data, as: UTF8.self)
-            
-            guard let pathToFirstFoundFont = output.components(separatedBy: "\n").first?.matchingStrings(regex: "^(\\/[^\\/ ]*)+\\/([^:]*)?").first?.first else {
-                fatalError("Can not determin default font, please specify one!")
-            }
-            return pathToFirstFoundFont
-        }
-        return defaultPathForRaspbian
-    }
     
     public init(_ text: String, font pathToFont: String? = nil, at origin: Point = Point(x: 0, y: 0), pixelWidth: UInt32 = 16, pixelHeight: UInt32 = 16) {
         self.origin = origin
@@ -602,6 +573,11 @@ public struct Text: Drawable {
         
     }
     
+    deinit {
+        FT_Done_Face(face)
+        FT_Done_FreeType(library)
+    }
+    
     public func setChar(width: Int, height: Int, horizontalResolution: UInt32, verticalResolution: UInt32) {
         guard FT_Set_Char_Size(&face!.pointee, width, height, horizontalResolution, verticalResolution) == FT_Err_Ok else {
             fatalError("Can not set char size!")
@@ -615,12 +591,10 @@ public struct Text: Drawable {
     }
     
     public func generatePointsForDrawing() -> [(Int, Int)] {
-        
         var result = [Point]()
-        
-        
         var previousGlyphIndex: UInt32 = 0
         var summaryLeftOffset: UInt32 = 0
+        
         for character in text {
             for scalar in character.unicodeScalars {
                 
@@ -666,8 +640,37 @@ public struct Text: Drawable {
                 summaryLeftOffset += UInt32(face!.pointee.glyph.pointee.metrics.horiAdvance) >> 6
             }
         }
+        
         return result.movedTo(origin).convertedToCoordinates()
     }
     
-    
+    private func getDefaultFontPath() -> String {
+        let defaultPathForRaspbian = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+        guard FileManager.default.fileExists(atPath: defaultPathForRaspbian) else {
+            let task = Process()
+            if #available(OSX 10.13, *) {
+                task.executableURL = URL(fileURLWithPath: "/bin/sh")
+            } else {
+                task.launchPath = "/bin/sh"
+            }
+            task.arguments = ["-c", "fc-list"]
+            let outputPipe = Pipe()
+            task.standardOutput = outputPipe
+            
+            if #available(OSX 10.13, *) {
+                try? task.run()
+            } else {
+                task.launch()
+            }
+            let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(decoding: data, as: UTF8.self)
+            
+            guard let pathToFirstFoundFont = output.components(separatedBy: "\n").first?.matchingStrings(regex: "^(\\/[^\\/ ]*)+\\/([^:]*)?").first?.first else {
+                fatalError("Can not determin default font, please specify one!")
+            }
+            return pathToFirstFoundFont
+        }
+        
+        return defaultPathForRaspbian
+    }
 }
