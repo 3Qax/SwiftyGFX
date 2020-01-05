@@ -1,6 +1,6 @@
 # SwiftyGFX
 
-A swift graphics library intended for my SwiftyOLED library. Feel free to design API for it when creating display libraries using swift on arm.
+A swift graphics library intended for my [SwiftyOLED](https://github.com/3Qax/SwiftyOLED) library. Feel free to design API for it when creating display libraries using swift on arm.
 
 ## Documentation
 
